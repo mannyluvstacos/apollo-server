@@ -129,7 +129,7 @@ npm install micro microrouter apollo-server-micro graphql
 
 2) `index.js`
 
-```js{1,21-26}
+```js {1,21-26}
 const { router, get, post, options } = require('microrouter');
 const { ApolloServer, gql } = require('apollo-server-micro');
 
