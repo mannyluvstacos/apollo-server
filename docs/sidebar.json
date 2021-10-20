@@ -1,0 +1,8 @@
+{
+  "Introduction": "/",
+  "Get started": "/getting-started",
+  "Choosing which package to use": "/integrations/middleware",
+  "Defining a Schema": {
+    "Schema basics": "/schema/schema"
+  }
+}
