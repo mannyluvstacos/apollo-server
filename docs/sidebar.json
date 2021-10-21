@@ -3,6 +3,9 @@
   "Get started": "/getting-started",
   "Choosing which package to use": "/integrations/middleware",
   "Defining a Schema": {
-    "Schema basics": "/schema/schema"
+    "Schema basics": "/schema/schema",
+    "nested": {
+      "should work": "/"
+    }
   }
 }
