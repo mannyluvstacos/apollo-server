@@ -5,7 +5,7 @@
   "Defining a Schema": {
     "Schema basics": "/schema/schema",
     "nested": {
-      "should work": "/"
+      "should work": "/schema/advanced"
     }
   }
 }

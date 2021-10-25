@@ -27,7 +27,7 @@ const server = new ApolloServer({
    // This means they vary for Express, Koa, Lambda, etc.
    //
    // To find out the correct arguments for a specific integration,
-   // see https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
+   // see /apollo-server/api/apollo-server/#middleware-specific-context-fields
 
    // Get the user token from the headers.
    const token = req.headers.authorization || '';

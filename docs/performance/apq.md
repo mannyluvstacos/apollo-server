@@ -37,7 +37,7 @@ To set up APQ in Apollo Client, first import the `createPersistedQueryLink` func
 import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries";
 ```
 
-This function creates a link that you can add to your client's [Apollo Link chain](https://www.apollographql.com/docs/react/api/link/introduction/). The link takes care of generating APQ identifiers, using `GET` requests for hashed queries, and retrying requests with query strings when necessary.
+This function creates a link that you can add to your client's [Apollo Link chain](/react/api/link/introduction/). The link takes care of generating APQ identifiers, using `GET` requests for hashed queries, and retrying requests with query strings when necessary.
 
 Add the persisted query link anywhere in the chain before the terminating link. This example shows a basic two-link chain:
 

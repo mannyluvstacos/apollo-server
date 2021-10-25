@@ -6,13 +6,13 @@ description: Persistent GraphQL read operations
 
 > **Apollo Server 3 removes built-in support for subscriptions.** You can reenable support as [described below](#enabling-subscriptions).
 >
-> **Subscriptions are not currently supported in [Apollo Federation](https://www.apollographql.com/docs/federation/).**
+> **Subscriptions are not currently supported in [Apollo Federation](/federation/).**
 
 **Subscriptions** are long-lasting GraphQL read operations that can update their result whenever a particular server-side event occurs. Most commonly, updated results are _pushed_ from the server to subscribing clients. For example, a chat application's server might use a subscription to push newly received messages to all clients in a particular chat room.
 
 Because subscription updates are usually pushed by the server (instead of polled by the client), they usually use [the WebSocket protocol](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) instead of HTTP.
 
-> **Important:** Compared to queries and mutations, subscriptions are significantly more complex to implement. Before you begin, [confirm that your use case requires subscriptions](https://www.apollographql.com/docs/react/data/subscriptions/#when-to-use-subscriptions).
+> **Important:** Compared to queries and mutations, subscriptions are significantly more complex to implement. Before you begin, [confirm that your use case requires subscriptions](/react/data/subscriptions/#when-to-use-subscriptions).
 
 ## Schema definition
 
@@ -436,7 +436,7 @@ These functions are passed the following parameters:
 
 An object containing parameters included in the request, such as an [authentication token](#example-authentication-with-onconnect).
 
-For details, see [Authenticate over WebSocket](https://www.apollographql.com/docs/react/data/subscriptions/#4-authenticate-over-websocket-optional) in the Apollo Client documentation.
+For details, see [Authenticate over WebSocket](/react/data/subscriptions/#4-authenticate-over-websocket-optional) in the Apollo Client documentation.
 
 </td>
 </tr>
@@ -476,7 +476,7 @@ Context object for the WebSocket connection. This is _not_ the `context` object 
 
 ### Example: Authentication with `onConnect`
 
-On the client, `SubscriptionsClient` supports adding information to `connectionParams` ([example](https://www.apollographql.com/docs/react/data/subscriptions/#5-authenticate-over-websocket-optional)) that will be sent with the first WebSocket message. On the server, all GraphQL subscriptions are delayed until the connection has been fully authenticated and the `onConnect` callback returns a truthy value.
+On the client, `SubscriptionsClient` supports adding information to `connectionParams` ([example](/react/data/subscriptions/#5-authenticate-over-websocket-optional)) that will be sent with the first WebSocket message. On the server, all GraphQL subscriptions are delayed until the connection has been fully authenticated and the `onConnect` callback returns a truthy value.
 
 Let's suppose we have our `SubscriptionClient` configured like so:
 

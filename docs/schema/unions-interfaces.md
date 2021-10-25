@@ -92,7 +92,7 @@ Here's a valid result for the above query:
 ```
 
 
-For more information, see [Using fragments with unions and interfaces](https://www.apollographql.com/docs/react/data/fragments/#using-fragments-with-unions-and-interfaces).
+For more information, see [Using fragments with unions and interfaces](/react/data/fragments/#using-fragments-with-unions-and-interfaces).
 
 
 ### Resolving a union
@@ -264,7 +264,7 @@ Here's a valid result for the above query:
 }
 ```
 
-For more information, see [Using fragments with unions and interfaces](https://www.apollographql.com/docs/react/data/fragments/#using-fragments-with-unions-and-interfaces).
+For more information, see [Using fragments with unions and interfaces](/react/data/fragments/#using-fragments-with-unions-and-interfaces).
 
 
 ### Resolving an interface

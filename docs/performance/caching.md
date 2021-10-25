@@ -294,7 +294,7 @@ query GetReaderBookTitle {
 
 > Using cache control with Apollo Federation requires v0.28 of `@apollo/federation` in your subgraph, v0.36 of `@apollo/gateway` in your router, and v3.0.2 of Apollo Server in both servers.
 
-When using [Apollo Federation](https://www.apollographql.com/docs/federation), the `@cacheControl` directive and `CacheControlScope` enum may be defined in a subgraph's schema. An Apollo Server-based subgraph will calculate and set the cache hint for the response that it sends to the gateway as it would for a non-federated Apollo Server sending a response to a client. The gateway will then calculate the cache hint for the overall response based on the most restrictive settings among all of the responses received from the subgraphs involved in query plan execution.
+When using [Apollo Federation](/federation), the `@cacheControl` directive and `CacheControlScope` enum may be defined in a subgraph's schema. An Apollo Server-based subgraph will calculate and set the cache hint for the response that it sends to the gateway as it would for a non-federated Apollo Server sending a response to a client. The gateway will then calculate the cache hint for the overall response based on the most restrictive settings among all of the responses received from the subgraphs involved in query plan execution.
 
 ### Setting entity cache hints
 
@@ -348,7 +348,7 @@ If you run Apollo Server behind a CDN or another caching proxy, you can configur
 
 Because CDNs and caching proxies only cache GET requests (not POST requests, which Apollo Client sends for all operations by default), we recommend enabling [automatic persisted queries](./apq/) and the [`useGETForHashedQueries` option](./apq/) in Apollo Client.
 
-Alternatively, you can set the `useGETForQueries` option of [HttpLink](https://www.apollographql.com/docs/react/api/link/apollo-link-http) in your `ApolloClient` instance. However, most browsers enforce a size limit on GET requests, and large query strings might exceed this limit.
+Alternatively, you can set the `useGETForQueries` option of [HttpLink](/react/api/link/apollo-link-http) in your `ApolloClient` instance. However, most browsers enforce a size limit on GET requests, and large query strings might exceed this limit.
 
 ## Disabling cache control
 

@@ -438,7 +438,7 @@ type MyObjectType {
 }
 ```
 
-A well documented schema helps provide an enhanced development experience, because GraphQL development tools (such as [Apollo Explorer](https://www.apollographql.com/docs/studio/explorer/)) auto-complete field names along with descriptions when they're provided. Furthermore, [Apollo Studio](https://studio.apollographql.com/) displays descriptions alongside field usage and performance details when using its metrics reporting and client awareness features.
+A well documented schema helps provide an enhanced development experience, because GraphQL development tools (such as [Apollo Explorer](/studio/explorer/)) auto-complete field names along with descriptions when they're provided. Furthermore, [Apollo Studio](https://studio.apollographql.com/) displays descriptions alongside field usage and performance details when using its metrics reporting and client awareness features.
 
 ## Naming conventions
 

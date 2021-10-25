@@ -4,7 +4,7 @@ sidebar_title: Usage reporting
 api_reference: true
 ---
 
-Apollo Server has a built-in usage reporting plugin that gathers data on how your clients use the operations and fields in your GraphQL schema. The plugin also handles pushing this usage data to [Apollo Studio](https://www.apollographql.com/docs/studio/), as described in [Metrics and logging](../../monitoring/metrics/).
+Apollo Server has a built-in usage reporting plugin that gathers data on how your clients use the operations and fields in your GraphQL schema. The plugin also handles pushing this usage data to [Apollo Studio](/studio/), as described in [Metrics and logging](../../monitoring/metrics/).
 
 ## Default installation
 
@@ -98,7 +98,7 @@ Specify this function to modify GraphQL operation errors before Apollo Server re
 
 The only properties of the reported error you can modify are its `message` and its `extensions`.
 
-**Note:** If this `ApolloServer` instance is acting as the gateway in an [Apollo Federation](https://www.apollographql.com/docs/federation/#architecture) architecture, this option does **not** modify errors that originate in subgraphs. To modify those errors, instead configure the [`rewriteError` option in the inline trace plugin](./inline-trace/#rewriteerror), which you install in the subgraph's `ApolloServer` instance.
+**Note:** If this `ApolloServer` instance is acting as the gateway in an [Apollo Federation](/federation/#architecture) architecture, this option does **not** modify errors that originate in subgraphs. To modify those errors, instead configure the [`rewriteError` option in the inline trace plugin](./inline-trace/#rewriteerror), which you install in the subgraph's `ApolloServer` instance.
 </td>
 </tr>
 
@@ -129,7 +129,7 @@ By default, all requests are included in usage reports.
 </td>
 <td>
 
-Specify this function to provide Apollo Studio with client details for each processed request. Apollo Studio uses this information to [segment metrics by client](https://www.apollographql.com/docs/studio/client-awareness/).
+Specify this function to provide Apollo Studio with client details for each processed request. Apollo Studio uses this information to [segment metrics by client](/studio/client-awareness/).
 
 This function is passed a [`GraphQLRequestContext`](https://github.com/apollographql/apollo-server/blob/main/packages/apollo-server-types/src/index.ts#L115-L150) object containing all available information about the request. It should return an object with `clientName` and `clientVersion` fields that identify the associated client.
 

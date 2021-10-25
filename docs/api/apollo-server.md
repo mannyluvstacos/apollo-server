@@ -139,7 +139,7 @@ The default value is `true`, **unless** the `NODE_ENV` environment variable is s
 
 An executable GraphQL schema. You usually don't need to provide this value, because Apollo Server generates it from [`typeDefs`](#typedefs) and [`resolvers`](#resolvers).
 
-This field is most commonly used with [Apollo Federation](https://www.apollographql.com/docs/federation/implementing-services/#generating-a-federated-schema), which uses a special `buildFederatedSchema` function to generate its schema.
+This field is most commonly used with [Apollo Federation](/federation/implementing-services/#generating-a-federated-schema), which uses a special `buildFederatedSchema` function to generate its schema.
 </td>
 </tr>
 
@@ -271,12 +271,12 @@ Provide this function to transform the structure of GraphQL response objects bef
 `Object`
 <td>
 
-An object containing configuration options for connecting Apollo Server to [Apollo Studio](https://www.apollographql.com/docs/studio/). Each field of this object can also be set with an environment variable, which is the recommended method of setting these parameters. All fields are optional. The fields are:
+An object containing configuration options for connecting Apollo Server to [Apollo Studio](/studio/). Each field of this object can also be set with an environment variable, which is the recommended method of setting these parameters. All fields are optional. The fields are:
 
-- `key`: The [graph API key](https://www.apollographql.com/docs/studio/api-keys/#graph-api-keys) that Apollo Server should use to authenticate with Apollo Studio. You can set this with the `APOLLO_KEY` environment variable.
+- `key`: The [graph API key](/studio/api-keys/#graph-api-keys) that Apollo Server should use to authenticate with Apollo Studio. You can set this with the `APOLLO_KEY` environment variable.
 - `graphRef`: A reference of your graph in Apollo's registry, such as `graph-id@my-variant` or just `graph-id`. You can set this with the `APOLLO_GRAPH_REF` environment variable.
 - `graphId`: The ID of your graph in Apollo's registry. You can set this with the `APOLLO_GRAPH_ID` environment variable. You may not specify this if you specify the graph ref.
-- `graphVariant`: The [variant](https://www.apollographql.com/docs/studio/schema/registry/#managing-environments-with-variants) of your graph to associate this server's schema and metrics with. You can set this with the `APOLLO_GRAPH_VARIANT` environment variable. The default value is `current`. You may not specify this if you specify the graph ref.
+- `graphVariant`: The [variant](/studio/schema/registry/#managing-environments-with-variants) of your graph to associate this server's schema and metrics with. You can set this with the `APOLLO_GRAPH_VARIANT` environment variable. The default value is `current`. You may not specify this if you specify the graph ref.
 
 </td>
 </tr>
@@ -580,7 +580,7 @@ This method was optional in Apollo Server 2 but is required in Apollo Server 3.
 
 The `start` method triggers the following actions:
 
-1. If your server is a [federated gateway](https://www.apollographql.com/docs/federation/managed-federation/overview/), it attempts to fetch its schema. If the fetch fails, `start` throws an error.
+1. If your server is a [federated gateway](/federation/managed-federation/overview/), it attempts to fetch its schema. If the fetch fails, `start` throws an error.
 2. Your server calls all of the [`serverWillStart` handlers](../integrations/plugins-event-reference/#serverwillstart) of your installed plugins. If any of these handlers throw an error, `start` throws an error.
 
 ## `stop`
@@ -596,7 +596,7 @@ The `start` method triggers the following actions:
   If you're using the batteries-included `apollo-server` package, it does this by default. (You can configure the grace period with the [`stopGracePeriodMillis` constructor option](#stopgraceperiodmillis).) Otherwise, you can use the [drain HTTP server plugin](./plugin/drain-http-server/) to drain your HTTP server.
 - Transitions the server to a state where it will not start executing more GraphQL operations.
 - Calls and awaits all [`serverWillStop` plugin handlers](../integrations/plugins-event-reference/#serverwillstop) (including the [usage reporting plugin](./plugin/usage-reporting/)'s handler, which sends a final usage report to Apollo Studio).
-- If your server is a [federated gateway](https://www.apollographql.com/docs/federation/gateway/), `stop` also stops gateway-specific background activities, such as polling for updated service configuration.
+- If your server is a [federated gateway](/federation/gateway/), `stop` also stops gateway-specific background activities, such as polling for updated service configuration.
 
 This method takes no arguments. You should only call it after [`start()`](#start) returns successfully (or [`listen()`](#listen) if you're using the batteries-included `apollo-server` package).
 
