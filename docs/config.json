@@ -1,5 +1,6 @@
 {
   "title": "Apollo Server",
+  "version": "v3",
   "sidebar": {
     "Introduction": "/",
     "Get started": "/getting-started",
