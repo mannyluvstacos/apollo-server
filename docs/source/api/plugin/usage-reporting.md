@@ -105,6 +105,34 @@ The only properties of the reported error you can modify are its `message` and i
 <tr>
 <td>
 
+###### `captureTraces`
+
+`async Function` or `number`
+</td>
+<td>
+
+This option allows you to choose if Apollo Server should capture a detailed per-field trace for a particular request. It is only called for executable operations: operations which parse and validate properly and which do not have an unknown operation name. It is not called if an [`includeRequest`](#includerequest) hook is provided and returns false.
+
+Returning false means that Apollo Server will only pay attention to overall properties of the operation, like what GraphQL operation is executing and how long the entire operation takes to execute, and not anything about field-by-field execution.
+
+If you return false, this operation *will* still contribute to most features of Studio, such as schema checks, the Operations page, and the "referencing operations" statistic on the Fields page, etc.
+
+If you return false, this operation will *not* contribute to the "field executions" statistic on the Fields page or to the execution timing hints optionally displayed in Studio Explorer or in vscode-graphql. Additionally, this operation will not produce a trace that can be viewed on the Traces section of the Operations page.
+
+Returning false here for some or all operations can improve the your server's performance, as the overhead of calculating complete traces is not always negligible. This is especially the case if this server is an Apollo Gateway, as captured traces are transmitted from the subgraph to the Gateway in-band inside the actual GraphQL response.
+
+Note that returning true here does *not* mean that the captured trace must be *transmitted* to Apollo Studio's servers in the form of a trace; it may still be aggregated locally to statistics. But a captured trace still will contribute to the "field executions" statistic and timing hints even if it is aggregated locally.
+
+Passing a number between 0 and 1 is equivalent to passing a function that returns true that fraction of the time; for example, passing 0.01 will capture traces for approximately one out of every hundred operations based on a random number generator. (If you were planning to write a function that does exactly the equivalent of passing a number here, we recommend passing a number; we may later improve this feature so that Studio can optionally show an estimated total of field executions based on using this number as a scaling factor.)
+
+The default is equivalent to a function that always returns true.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 ###### `includeRequest`
 
 `async Function`
@@ -113,7 +141,11 @@ The only properties of the reported error you can modify are its `message` and i
 
 Specify this asynchronous function to configure which requests are included in usage reports sent to Apollo Studio. For example, you can omit requests that execute a particular operation or requests that include a particular HTTP header.
 
+ Note that returning false here means that the operation will be completely ignored by all Apollo Studio features. If you merely want to improve performance by skipping the field-level execution trace, set the [`captureTraces`](#capturetraces) option instead of this one.
+
 This function is called for each received request. It takes a [`GraphQLRequestContext`](https://github.com/apollographql/apollo-server/blob/main/packages/apollo-server-types/src/index.ts#L115-L150) object and must return a `Promise<Boolean>` that indicates whether to include the request. It's called either after the operation is successfully resolved (via [the `didResolveOperation` event](https://www.apollographql.com/docs/apollo-server/integrations/plugins/#didresolveoperation)), or when sending the final error response if the operation was not successfully resolved (via [the `willSendResponse` event](https://www.apollographql.com/docs/apollo-server/integrations/plugins/#willsendresponse)).
+
+(If you don't want any usage reporting at all, don't use this option: instead, either avoid specifying an Apollo API key or explicitly [disable the plugin](#disabling-the-plugin).)
 
 By default, all requests are included in usage reports.
 
