@@ -6405,6 +6405,7 @@ $root.ContextualizedStats = (function() {
      * @property {IStatsContext|null} [context] ContextualizedStats context
      * @property {IQueryLatencyStats|null} [queryLatencyStats] ContextualizedStats queryLatencyStats
      * @property {Object.<string,ITypeStat>|null} [perTypeStat] ContextualizedStats perTypeStat
+     * @property {number|null} [requestsWithoutFieldInstrumentation] ContextualizedStats requestsWithoutFieldInstrumentation
      */
 
     /**
@@ -6448,6 +6449,14 @@ $root.ContextualizedStats = (function() {
     ContextualizedStats.prototype.perTypeStat = $util.emptyObject;
 
     /**
+     * ContextualizedStats requestsWithoutFieldInstrumentation.
+     * @member {number} requestsWithoutFieldInstrumentation
+     * @memberof ContextualizedStats
+     * @instance
+     */
+    ContextualizedStats.prototype.requestsWithoutFieldInstrumentation = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
      * Creates a new ContextualizedStats instance using the specified properties.
      * @function create
      * @memberof ContextualizedStats
@@ -6480,6 +6489,8 @@ $root.ContextualizedStats = (function() {
                 writer.uint32(/* id 3, wireType 2 =*/26).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
                 $root.TypeStat.encode(message.perTypeStat[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
             }
+        if (message.requestsWithoutFieldInstrumentation != null && Object.hasOwnProperty.call(message, "requestsWithoutFieldInstrumentation"))
+            writer.uint32(/* id 6, wireType 0 =*/48).uint64(message.requestsWithoutFieldInstrumentation);
         return writer;
     };
 
@@ -6527,6 +6538,9 @@ $root.ContextualizedStats = (function() {
                 key = reader.string();
                 reader.pos++;
                 message.perTypeStat[key] = $root.TypeStat.decode(reader, reader.uint32());
+                break;
+            case 6:
+                message.requestsWithoutFieldInstrumentation = reader.uint64();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -6583,6 +6597,9 @@ $root.ContextualizedStats = (function() {
                     return "perTypeStat." + error;
             }
         }
+        if (message.requestsWithoutFieldInstrumentation != null && message.hasOwnProperty("requestsWithoutFieldInstrumentation"))
+            if (!$util.isInteger(message.requestsWithoutFieldInstrumentation) && !(message.requestsWithoutFieldInstrumentation && $util.isInteger(message.requestsWithoutFieldInstrumentation.low) && $util.isInteger(message.requestsWithoutFieldInstrumentation.high)))
+                return "requestsWithoutFieldInstrumentation: integer|Long expected";
         return null;
     };
 
@@ -6604,6 +6621,11 @@ $root.ContextualizedStats = (function() {
         if (options.defaults) {
             object.context = null;
             object.queryLatencyStats = null;
+            if ($util.Long) {
+                var long = new $util.Long(0, 0, true);
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? "0" : 0;
         }
         if (message.context != null && message.hasOwnProperty("context"))
             object.context = $root.StatsContext.toObject(message.context, options);
@@ -6615,6 +6637,11 @@ $root.ContextualizedStats = (function() {
             for (var j = 0; j < keys2.length; ++j)
                 object.perTypeStat[keys2[j]] = $root.TypeStat.toObject(message.perTypeStat[keys2[j]], options);
         }
+        if (message.requestsWithoutFieldInstrumentation != null && message.hasOwnProperty("requestsWithoutFieldInstrumentation"))
+            if (typeof message.requestsWithoutFieldInstrumentation === "number")
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? String(message.requestsWithoutFieldInstrumentation) : message.requestsWithoutFieldInstrumentation;
+            else
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? $util.Long.prototype.toString.call(message.requestsWithoutFieldInstrumentation) : options.longs === Number ? new $util.LongBits(message.requestsWithoutFieldInstrumentation.low >>> 0, message.requestsWithoutFieldInstrumentation.high >>> 0).toNumber(true) : message.requestsWithoutFieldInstrumentation;
         return object;
     };
 

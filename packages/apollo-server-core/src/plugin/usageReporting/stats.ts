@@ -56,12 +56,14 @@ export class OurReport implements Required<IReport> {
     asTrace,
     includeTracesContributingToStats,
     referencedFieldsByType,
+    fieldLevelInstrumentation,
   }: {
     statsReportKey: string;
     trace: Trace;
     asTrace: boolean;
     includeTracesContributingToStats: boolean;
     referencedFieldsByType: ReferencedFieldsByType;
+    fieldLevelInstrumentation: boolean;
   }) {
     const tracesAndStats = this.getTracesAndStats({
       statsReportKey,
@@ -72,7 +74,11 @@ export class OurReport implements Required<IReport> {
       tracesAndStats.trace.push(encodedTrace);
       this.sizeEstimator.bytes += 2 + encodedTrace.length;
     } else {
-      tracesAndStats.statsWithContext.addTrace(trace, this.sizeEstimator);
+      tracesAndStats.statsWithContext.addTrace({
+        trace,
+        sizeEstimator: this.sizeEstimator,
+        fieldLevelInstrumentation,
+      });
       if (includeTracesContributingToStats) {
         // For specific use inside Apollo's infrastructure to help validate that
         // the code in this file matches similar code in Apollo's servers,
@@ -143,11 +149,20 @@ class StatsByContext {
     return Object.values(this.map);
   }
 
-  addTrace(trace: Trace, sizeEstimator: SizeEstimator) {
-    this.getContextualizedStats(trace, sizeEstimator).addTrace(
+  addTrace({
+    trace,
+    sizeEstimator,
+    fieldLevelInstrumentation,
+  }: {
+    trace: Trace;
+    sizeEstimator: SizeEstimator;
+    fieldLevelInstrumentation: boolean;
+  }) {
+    this.getContextualizedStats(trace, sizeEstimator).addTrace({
       trace,
       sizeEstimator,
-    );
+      fieldLevelInstrumentation,
+    });
   }
 
   private getContextualizedStats(
@@ -180,6 +195,7 @@ class StatsByContext {
 export class OurContextualizedStats implements Required<IContextualizedStats> {
   queryLatencyStats = new OurQueryLatencyStats();
   perTypeStat: { [k: string]: OurTypeStat } = Object.create(null);
+  requestsWithoutFieldInstrumentation = 0;
 
   constructor(readonly context: IStatsContext) {}
 
@@ -187,7 +203,19 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
   // We only add to the estimate when adding whole sub-messages. If it really
   // mattered, we could do a lot more careful things like incrementing it
   // whenever a numeric field on queryLatencyStats gets incremented over 0.
-  addTrace(trace: Trace, sizeEstimator: SizeEstimator) {
+  addTrace({
+    trace,
+    sizeEstimator,
+    fieldLevelInstrumentation,
+  }: {
+    trace: Trace;
+    sizeEstimator: SizeEstimator;
+    fieldLevelInstrumentation: boolean;
+  }) {
+    if (!fieldLevelInstrumentation) {
+      this.requestsWithoutFieldInstrumentation++;
+    }
+
     this.queryLatencyStats.requestCount++;
     if (trace.fullQueryCacheHit) {
       this.queryLatencyStats.cacheLatencyCount.incrementDuration(
@@ -250,48 +278,52 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
         currPathErrorStats.errorsCount += node.error.length;
       }
 
-      // The actual field name behind the node; originalFieldName is set
-      // if an alias was used, otherwise responseName. (This is falsey for
-      // nodes that are not fields (root, array index, etc).)
-      const fieldName = node.originalFieldName || node.responseName;
+      if (fieldLevelInstrumentation) {
+        // The actual field name behind the node; originalFieldName is set
+        // if an alias was used, otherwise responseName. (This is falsey for
+        // nodes that are not fields (root, array index, etc).)
+        const fieldName = node.originalFieldName || node.responseName;
 
-      // Protobuf doesn't really differentiate between "unset" and "falsey" so
-      // we're mostly actually checking that these things are non-empty string /
-      // non-zero numbers. The time fields represent the number of nanoseconds
-      // since the beginning of the entire trace, so let's pretend for the
-      // moment that it's plausible for a node to start or even end exactly when
-      // the trace started (ie, for the time values to be 0). This is unlikely
-      // in practice (everything should take at least 1ns). In practice we only
-      // write `type` and `parentType` on a Node when we write `startTime`, so
-      // the main thing we're looking out for by checking the time values is
-      // whether we somehow failed to write `endTime` at the end of the field;
-      // in this case, the `endTime >= startTime` check won't match.
-      if (
-        node.parentType &&
-        fieldName &&
-        node.type &&
-        node.endTime != null &&
-        node.startTime != null &&
-        node.endTime >= node.startTime
-      ) {
-        const typeStat = this.getTypeStat(node.parentType, sizeEstimator);
+        // Protobuf doesn't really differentiate between "unset" and "falsey" so
+        // we're mostly actually checking that these things are non-empty string /
+        // non-zero numbers. The time fields represent the number of nanoseconds
+        // since the beginning of the entire trace, so let's pretend for the
+        // moment that it's plausible for a node to start or even end exactly when
+        // the trace started (ie, for the time values to be 0). This is unlikely
+        // in practice (everything should take at least 1ns). In practice we only
+        // write `type` and `parentType` on a Node when we write `startTime`, so
+        // the main thing we're looking out for by checking the time values is
+        // whether we somehow failed to write `endTime` at the end of the field;
+        // in this case, the `endTime >= startTime` check won't match.
+        if (
+          node.parentType &&
+          fieldName &&
+          node.type &&
+          node.endTime != null &&
+          node.startTime != null &&
+          node.endTime >= node.startTime
+        ) {
+          const typeStat = this.getTypeStat(node.parentType, sizeEstimator);
 
-        const fieldStat = typeStat.getFieldStat(
-          fieldName,
-          node.type,
-          sizeEstimator,
-        );
+          const fieldStat = typeStat.getFieldStat(
+            fieldName,
+            node.type,
+            sizeEstimator,
+          );
 
-        fieldStat.errorsCount += node.error?.length ?? 0;
-        fieldStat.count++;
-        // Note: this is actually counting the number of resolver calls for this
-        // field that had at least one error, not the number of overall GraphQL
-        // queries that had at least one error for this field. That doesn't seem
-        // to match the name, but it does match the other implementations of this
-        // logic.
-        fieldStat.requestsWithErrorsCount +=
-          (node.error?.length ?? 0) > 0 ? 1 : 0;
-        fieldStat.latencyCount.incrementDuration(node.endTime - node.startTime);
+          fieldStat.errorsCount += node.error?.length ?? 0;
+          fieldStat.count++;
+          // Note: this is actually counting the number of resolver calls for this
+          // field that had at least one error, not the number of overall GraphQL
+          // queries that had at least one error for this field. That doesn't seem
+          // to match the name, but it does match the other implementations of this
+          // logic.
+          fieldStat.requestsWithErrorsCount +=
+            (node.error?.length ?? 0) > 0 ? 1 : 0;
+          fieldStat.latencyCount.incrementDuration(
+            node.endTime - node.startTime,
+          );
+        }
       }
 
       return false;

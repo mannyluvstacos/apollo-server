@@ -370,8 +370,12 @@ message Report {
 message ContextualizedStats {
   StatsContext context = 1;
   QueryLatencyStats query_latency_stats = 2;
-  // Key is type name.
+  // Key is type name. This structure provides data for the count and latency of individual
+  // field executions and thus only reflects operations for which field-level tracing occurred.
   map<string, TypeStat> per_type_stat = 3;
+  // The number of requests that were executed without field-level instrumentation (and thus
+  // do not contribute to `per_type_stat`).
+  uint64 requests_without_field_instrumentation = 6;
 
 }
 

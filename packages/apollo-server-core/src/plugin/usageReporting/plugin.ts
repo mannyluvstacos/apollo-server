@@ -665,6 +665,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
                   sendOperationAsTrace(trace, statsReportKey),
                 includeTracesContributingToStats,
                 referencedFieldsByType,
+                fieldLevelInstrumentation: !!metrics.fieldLevelInstrumentation,
               });
 
               // If the buffer gets big (according to our estimate), send.

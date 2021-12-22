@@ -2512,6 +2512,9 @@ export interface IContextualizedStats {
 
     /** ContextualizedStats perTypeStat */
     perTypeStat?: ({ [k: string]: ITypeStat }|null);
+
+    /** ContextualizedStats requestsWithoutFieldInstrumentation */
+    requestsWithoutFieldInstrumentation?: (number|null);
 }
 
 /** Represents a ContextualizedStats. */
@@ -2531,6 +2534,9 @@ export class ContextualizedStats implements IContextualizedStats {
 
     /** ContextualizedStats perTypeStat. */
     public perTypeStat: { [k: string]: ITypeStat };
+
+    /** ContextualizedStats requestsWithoutFieldInstrumentation. */
+    public requestsWithoutFieldInstrumentation: number;
 
     /**
      * Creates a new ContextualizedStats instance using the specified properties.
