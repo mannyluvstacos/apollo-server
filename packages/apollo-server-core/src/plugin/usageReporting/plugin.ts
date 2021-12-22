@@ -435,10 +435,11 @@ export function ApolloServerPluginUsageReporting<TContext>(
 
           if (typeof options.includeRequest !== 'function') {
             // Default case we always report
-            metrics.includeOperationInUsageReporting = true;
+            metrics.includeOperationInUsageReporting = metrics.captureTraces =
+              true;
             return;
           }
-          metrics.includeOperationInUsageReporting =
+          metrics.includeOperationInUsageReporting = metrics.captureTraces =
             await options.includeRequest(requestContext);
 
           // Help the user understand they've returned an unexpected value,
@@ -447,7 +448,8 @@ export function ApolloServerPluginUsageReporting<TContext>(
             logger.warn(
               "The 'includeRequest' async predicate function must return a boolean value.",
             );
-            metrics.includeOperationInUsageReporting = true;
+            metrics.includeOperationInUsageReporting = metrics.captureTraces =
+              true;
           }
         }
 

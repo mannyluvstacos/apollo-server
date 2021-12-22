@@ -118,6 +118,10 @@ export interface GraphQLResponse {
 export interface GraphQLRequestMetrics {
   includeOperationInUsageReporting?: boolean;
   fieldLevelInstrumentation?: boolean;
+  /**
+   * @deprecated: equivalent to includeOperationInUsageReporting but with a less
+   * accurate name. */
+  captureTraces?: boolean;
   persistedQueryHit?: boolean;
   persistedQueryRegister?: boolean;
   responseCacheHit?: boolean;
