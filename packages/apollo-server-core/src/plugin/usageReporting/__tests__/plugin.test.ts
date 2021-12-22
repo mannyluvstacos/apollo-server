@@ -232,7 +232,7 @@ describe('end-to-end', () => {
       });
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
       expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-      expect(context.metrics.captureTraces).toBe(true);
+      expect(context.metrics.fieldLevelInstrumentation).toBe(true);
     });
     it('exclude based on operation name', async () => {
       const { context } = await runTest({
@@ -246,11 +246,11 @@ describe('end-to-end', () => {
         schemaShouldBeInstrumented: false,
       });
       expect(context.metrics.includeOperationInUsageReporting).toBe(false);
-      expect(context.metrics.captureTraces).toBeFalsy();
+      expect(context.metrics.fieldLevelInstrumentation).toBeFalsy();
     });
   });
 
-  describe('captureTraces', () => {
+  describe('fieldLevelInstrumentation', () => {
     function containsFieldExecutionData(
       tracesAndStats: ITracesAndStats,
     ): boolean {
@@ -287,7 +287,7 @@ describe('end-to-end', () => {
     it('include based on operation name', async () => {
       const { report, context } = await runTest({
         pluginOptions: {
-          captureTraces: async (
+          fieldLevelInstrumentation: async (
             requestContext: GraphQLRequestContextDidResolveOperation<any>,
           ) => {
             await new Promise<void>((res) => setTimeout(() => res(), 1));
@@ -296,7 +296,7 @@ describe('end-to-end', () => {
         },
       });
       expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-      expect(context.metrics.captureTraces).toBe(true);
+      expect(context.metrics.fieldLevelInstrumentation).toBe(true);
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
       expect(
         containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!),
@@ -306,7 +306,7 @@ describe('end-to-end', () => {
     it('exclude based on operation name', async () => {
       const { report, context } = await runTest({
         pluginOptions: {
-          captureTraces: async (
+          fieldLevelInstrumentation: async (
             requestContext: GraphQLRequestContextDidResolveOperation<any>,
           ) => {
             await new Promise<void>((res) => setTimeout(() => res(), 1));
@@ -318,7 +318,7 @@ describe('end-to-end', () => {
       // We do get a report about this operation; we just don't have field
       // execution data (as trace or as TypeStat).
       expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-      expect(context.metrics.captureTraces).toBe(false);
+      expect(context.metrics.fieldLevelInstrumentation).toBe(false);
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
       expect(
         containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!),
@@ -328,21 +328,21 @@ describe('end-to-end', () => {
     it('pass a number', async () => {
       const total = 100;
       const fraction = 0.35;
-      let actualCaptureTraces = 0;
+      let actualFieldLevelInstrumentation = 0;
       let actualContainsFieldExecutionData = 0;
 
       for (let i = 0; i < total; ++i) {
         const { report, context } = await runTest({
           pluginOptions: {
-            captureTraces: fraction,
+            fieldLevelInstrumentation: fraction,
           },
           schemaShouldBeInstrumented: null,
         });
         // We do get a report about this operation; we just don't have field
         // execution data (as trace or as TypeStat).
         expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-        if (context.metrics.captureTraces === true) {
-          actualCaptureTraces++;
+        if (context.metrics.fieldLevelInstrumentation === true) {
+          actualFieldLevelInstrumentation++;
         }
         expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
         if (
@@ -353,13 +353,19 @@ describe('end-to-end', () => {
       }
 
       // Make sure the number of reports that contain field execution data
-      // matches the number of times that the plugin set the captureTraces
-      // metrics flag.
-      expect(actualContainsFieldExecutionData).toBe(actualCaptureTraces);
+      // matches the number of times that the plugin set the
+      // fieldLevelInstrumentation metrics flag.
+      expect(actualContainsFieldExecutionData).toBe(
+        actualFieldLevelInstrumentation,
+      );
       const expected = fraction * total;
       // If it strays from the expected amount of 35 by too far we fail.
-      expect(actualCaptureTraces).toBeGreaterThanOrEqual(0.6 * expected);
-      expect(actualCaptureTraces).toBeLessThanOrEqual(1.4 * expected);
+      expect(actualFieldLevelInstrumentation).toBeGreaterThanOrEqual(
+        0.6 * expected,
+      );
+      expect(actualFieldLevelInstrumentation).toBeLessThanOrEqual(
+        1.4 * expected,
+      );
     });
   });
 });

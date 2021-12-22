@@ -97,7 +97,7 @@ export interface ApolloServerPluginUsageReportingOptions<TContext> {
    *
    * The default is equivalent to a function that always returns true.
    */
-  captureTraces?:
+  fieldLevelInstrumentation?:
     | number
     | ((
         request: GraphQLRequestContextDidResolveOperation<TContext>,
@@ -112,7 +112,7 @@ export interface ApolloServerPluginUsageReportingOptions<TContext> {
    * Note that returning false here means that the operation will be completely
    * ignored by all Apollo Studio features. If you merely want to improve
    * performance by skipping the field-level execution trace, set the
-   * `captureTraces` option instead of this one.
+   * `fieldLevelInstrumentation` option instead of this one.
    *
    * The predicate function receives the request context. If validation and
    * parsing of the request succeeds, the function will receive the request

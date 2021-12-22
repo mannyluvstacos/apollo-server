@@ -375,11 +375,11 @@ export async function processGraphQLRequest<TContext>(
       // schema will be augmented so it is able to invoke willResolveField. Note
       // that if we never see a plugin with willResolveField then we will never
       // need to instrument the schema, which might be a small performance gain.
-      // (For example, this can happen if you pass `captureTraces: () => false`
-      // to the usage reporting plugin and disable the cache control plugin. We
-      // can consider changing the cache control plugin to have a "static cache
-      // control only" mode that doesn't use willResolveField too if this proves
-      // to be helpful in practice.)
+      // (For example, this can happen if you pass `fieldLevelInstrumentation:
+      // () => false` to the usage reporting plugin and disable the cache
+      // control plugin. We can consider changing the cache control plugin to
+      // have a "static cache control only" mode that doesn't use
+      // willResolveField too if this proves to be helpful in practice.)
       enablePluginsForSchemaResolvers(config.schema);
     }
 

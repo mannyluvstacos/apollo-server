@@ -117,7 +117,7 @@ export interface GraphQLResponse {
 
 export interface GraphQLRequestMetrics {
   includeOperationInUsageReporting?: boolean;
-  captureTraces?: boolean;
+  fieldLevelInstrumentation?: boolean;
   persistedQueryHit?: boolean;
   persistedQueryRegister?: boolean;
   responseCacheHit?: boolean;

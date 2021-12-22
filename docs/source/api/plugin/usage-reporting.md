@@ -105,13 +105,13 @@ The only properties of the reported error you can modify are its `message` and i
 <tr>
 <td>
 
-###### `captureTraces`
+###### `fieldLevelInstrumentation`
 
 `async Function` or `number`
 </td>
 <td>
 
-This option allows you to choose if Apollo Server should capture a detailed per-field trace for a particular request. It is only called for executable operations: operations which parse and validate properly and which do not have an unknown operation name. It is not called if an [`includeRequest`](#includerequest) hook is provided and returns false.
+This option allows you to choose if Apollo Server should calculate detailed per-field statistics for a particular request. It is only called for executable operations: operations which parse and validate properly and which do not have an unknown operation name. It is not called if an [`includeRequest`](#includerequest) hook is provided and returns false.
 
 Returning false means that Apollo Server will only pay attention to overall properties of the operation, like what GraphQL operation is executing and how long the entire operation takes to execute, and not anything about field-by-field execution.
 
@@ -141,7 +141,7 @@ The default is equivalent to a function that always returns true.
 
 Specify this asynchronous function to configure which requests are included in usage reports sent to Apollo Studio. For example, you can omit requests that execute a particular operation or requests that include a particular HTTP header.
 
- Note that returning false here means that the operation will be completely ignored by all Apollo Studio features. If you merely want to improve performance by skipping the field-level execution trace, set the [`captureTraces`](#capturetraces) option instead of this one.
+ Note that returning false here means that the operation will be completely ignored by all Apollo Studio features. If you merely want to improve performance by skipping the field-level execution trace, set the [`fieldLevelInstrumentation`](#fieldlevelinstrumentation) option instead of this one.
 
 This function is called for each received request. It takes a [`GraphQLRequestContext`](https://github.com/apollographql/apollo-server/blob/main/packages/apollo-server-types/src/index.ts#L115-L150) object and must return a `Promise<Boolean>` that indicates whether to include the request. It's called either after the operation is successfully resolved (via [the `didResolveOperation` event](https://www.apollographql.com/docs/apollo-server/integrations/plugins/#didresolveoperation)), or when sending the final error response if the operation was not successfully resolved (via [the `willSendResponse` event](https://www.apollographql.com/docs/apollo-server/integrations/plugins/#willsendresponse)).
 

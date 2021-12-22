@@ -69,18 +69,18 @@ export function ApolloServerPluginUsageReporting<TContext>(
   ),
 ): InternalApolloServerPlugin {
   // Notes for the future:
-  // - If captureTraces is a number, it would be nice to send it in the report
-  //   and have ingestion remember it so it can be used for an approximate
-  //   scaled field execution count on the Fields L1.
+  // - If fieldLevelInstrumentation is a number, it would be nice to send it in
+  //   the report and have ingestion remember it so it can be used for an
+  //   approximate scaled field execution count on the Fields L1.
   // - We'd like to change the default to false in Apollo Server 4, so that the
   //   default usage reporting experience doesn't include *anything* that could
   //   potentially be PII (like error messages) --- just operations and numbers.
-  const captureTracesOption = options.captureTraces;
-  const captureTraces =
-    typeof captureTracesOption === 'number'
-      ? async () => Math.random() < captureTracesOption
-      : captureTracesOption
-      ? captureTracesOption
+  const fieldLevelInstrumentationOption = options.fieldLevelInstrumentation;
+  const fieldLevelInstrumentation =
+    typeof fieldLevelInstrumentationOption === 'number'
+      ? async () => Math.random() < fieldLevelInstrumentationOption
+      : fieldLevelInstrumentationOption
+      ? fieldLevelInstrumentationOption
       : async () => true;
 
   let requestDidStartHandler: (
@@ -525,7 +525,8 @@ export function ApolloServerPluginUsageReporting<TContext>(
               // were executed and what their performance was, at the tradeoff of
               // some overhead for tracking the trace (and transmitting it between
               // subgraph and gateway).
-              metrics.captureTraces = await captureTraces(requestContext);
+              metrics.fieldLevelInstrumentation =
+                await fieldLevelInstrumentation(requestContext);
             }
           },
           async executionDidStart() {
@@ -533,7 +534,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
             // that we don't build up a detailed trace inside treeBuilder. (We still
             // will use treeBuilder as a convenient place to put top-level facts
             // about the operation which can end up aggregated as stats.)
-            if (!metrics.captureTraces) return;
+            if (!metrics.fieldLevelInstrumentation) return;
 
             return {
               willResolveField({ info }) {
@@ -658,7 +659,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
                 // sendOperationAsTrace says so.
                 asTrace:
                   graphMightSupportTraces &&
-                  !!metrics.captureTraces &&
+                  !!metrics.fieldLevelInstrumentation &&
                   sendOperationAsTrace(trace, statsReportKey),
                 includeTracesContributingToStats,
                 referencedFieldsByType,
