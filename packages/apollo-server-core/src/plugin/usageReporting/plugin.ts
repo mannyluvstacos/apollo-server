@@ -505,7 +505,12 @@ export function ApolloServerPluginUsageReporting<TContext>(
               requestContext.operation === undefined;
             await maybeCallIncludeRequestHook(requestContext);
 
-            if (metrics.includeOperationInUsageReporting) {
+            if (
+              metrics.includeOperationInUsageReporting &&
+              // No need to capture traces if the operation is going to
+              // immediately fail due to unknown operation name.
+              !graphqlUnknownOperationName
+            ) {
               // We're not completely ignoring the operation. But should we
               // calculate a detailed trace of every field while we do so (either
               // directly in this plugin, or in a subgraph by sending the

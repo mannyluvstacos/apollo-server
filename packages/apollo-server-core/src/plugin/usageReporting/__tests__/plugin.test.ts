@@ -37,7 +37,8 @@ describe('end-to-end', () => {
     expectReport?: boolean;
     query?: string;
     operationName?: string | null;
-    schemaShouldBeInstrumented?: boolean;
+    // null means no expectation because it's not deterministic
+    schemaShouldBeInstrumented?: boolean | null;
   }) {
     const typeDefs = `
       type User {
@@ -132,9 +133,11 @@ describe('end-to-end', () => {
       : null;
     nockScope.done();
 
-    expect(pluginsEnabledForSchemaResolvers(schema)).toBe(
-      schemaShouldBeInstrumented,
-    );
+    if (schemaShouldBeInstrumented !== null) {
+      expect(pluginsEnabledForSchemaResolvers(schema)).toBe(
+        schemaShouldBeInstrumented,
+      );
+    }
 
     return { report, context };
   }
@@ -225,7 +228,7 @@ describe('end-to-end', () => {
             return request.request.operationName === 'q';
           },
         },
-        schemaShouldBeInstrumented: false,
+        schemaShouldBeInstrumented: true,
       });
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
       expect(context.metrics.includeOperationInUsageReporting).toBe(true);
@@ -333,6 +336,7 @@ describe('end-to-end', () => {
           pluginOptions: {
             captureTraces: fraction,
           },
+          schemaShouldBeInstrumented: null,
         });
         // We do get a report about this operation; we just don't have field
         // execution data (as trace or as TypeStat).
@@ -353,10 +357,9 @@ describe('end-to-end', () => {
       // metrics flag.
       expect(actualContainsFieldExecutionData).toBe(actualCaptureTraces);
       const expected = fraction * total;
-      // If it strays from the expected amount of 35 by more than around 10
-      // requests, we fail. If that's too strict we can change the bounds here.
-      expect(actualCaptureTraces).toBeGreaterThanOrEqual(0.7 * expected);
-      expect(actualCaptureTraces).toBeLessThanOrEqual(1.3 * expected);
+      // If it strays from the expected amount of 35 by too far we fail.
+      expect(actualCaptureTraces).toBeGreaterThanOrEqual(0.6 * expected);
+      expect(actualCaptureTraces).toBeLessThanOrEqual(1.4 * expected);
     });
   });
 });
