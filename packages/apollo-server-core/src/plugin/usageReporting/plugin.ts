@@ -243,6 +243,8 @@ export function ApolloServerPluginUsageReporting<TContext>(
         // associated with the summarized statistics.
         report.endTime = dateToProtoTimestamp(new Date());
 
+        report.ensureCountsAreIntegers();
+
         const protobufError = Report.verify(report);
         if (protobufError) {
           throw new Error(`Error encoding report: ${protobufError}`);
@@ -545,7 +547,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
                 fieldLevelInstrumentationResult > 0
               ) {
                 fieldExecutionScaleFactor = 1 / fieldLevelInstrumentationResult;
-              } else if (fieldExecutionScaleFactor) {
+              } else if (fieldLevelInstrumentationResult) {
                 fieldExecutionScaleFactor = 1;
               } else {
                 fieldExecutionScaleFactor = 0;

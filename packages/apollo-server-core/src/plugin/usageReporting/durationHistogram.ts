@@ -4,7 +4,7 @@ export interface DurationHistogramOptions {
 }
 export class DurationHistogram {
   // Note that it's legal for the values in "buckets" to be non-integers; they
-  // will be floored when converted to the protobuf binary format.
+  // will be floored by toArray (which is called by the protobuf encoder).
   private readonly buckets: number[];
   static readonly BUCKET_COUNT = 384;
   static readonly EXPONENT_LOG = Math.log(1.1);
@@ -22,7 +22,7 @@ export class DurationHistogram {
         } else if (bufferedZeroes !== 0) {
           outputArray.push(-bufferedZeroes);
         }
-        outputArray.push(value);
+        outputArray.push(Math.floor(value));
         bufferedZeroes = 0;
       }
     }

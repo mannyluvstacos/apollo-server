@@ -50,6 +50,12 @@ export class OurReport implements Required<IReport> {
   // methods which increment it.
   readonly sizeEstimator = new SizeEstimator();
 
+  ensureCountsAreIntegers() {
+    for (const tracesAndStats of Object.values(this.tracesPerQuery)) {
+      tracesAndStats.ensureCountsAreIntegers();
+    }
+  }
+
   addTrace({
     statsReportKey,
     trace,
@@ -136,6 +142,10 @@ class OurTracesAndStats implements Required<ITracesAndStats> {
   readonly trace: Uint8Array[] = [];
   readonly statsWithContext = new StatsByContext();
   readonly internalTracesContributingToStats: Uint8Array[] = [];
+
+  ensureCountsAreIntegers() {
+    this.statsWithContext.ensureCountsAreIntegers();
+  }
 }
 
 class StatsByContext {
@@ -147,6 +157,12 @@ class StatsByContext {
    */
   toArray(): IContextualizedStats[] {
     return Object.values(this.map);
+  }
+
+  ensureCountsAreIntegers() {
+    for (const contextualizedStats of Object.values(this.map)) {
+      contextualizedStats.ensureCountsAreIntegers();
+    }
   }
 
   addTrace({
@@ -197,6 +213,12 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
   perTypeStat: { [k: string]: OurTypeStat } = Object.create(null);
 
   constructor(readonly context: IStatsContext) {}
+
+  ensureCountsAreIntegers() {
+    for (const typeStat of Object.values(this.perTypeStat)) {
+      typeStat.ensureCountsAreIntegers();
+    }
+  }
 
   // Extract statistics from the trace, and increment the estimated report size.
   // We only add to the estimate when adding whole sub-messages. If it really
@@ -405,18 +427,30 @@ class OurTypeStat implements Required<ITypeStat> {
     this.perFieldStat[fieldName] = fieldStat;
     return fieldStat;
   }
+
+  ensureCountsAreIntegers() {
+    for (const fieldStat of Object.values(this.perFieldStat)) {
+      fieldStat.ensureCountsAreIntegers();
+    }
+  }
 }
 
 class OurFieldStat implements Required<IFieldStat> {
   errorsCount: number = 0;
   observedExecutionCount: number = 0;
   // Note that this number isn't necessarily an integer while it is being
-  // aggregated; it will be truncated when written as a protobuf.
+  // aggregated. Before encoding as a protobuf we call ensureCountsAreIntegers
+  // which floors it.
   estimatedExecutionCount: number = 0;
   requestsWithErrorsCount: number = 0;
   latencyCount: DurationHistogram = new DurationHistogram();
 
   constructor(readonly returnType: string) {}
+
+  ensureCountsAreIntegers() {
+    // This is the only one that ever can receive non-integers.
+    this.estimatedExecutionCount = Math.floor(this.estimatedExecutionCount);
+  }
 }
 
 function estimatedBytesForString(s: string) {

@@ -13,11 +13,13 @@ import {
   Report,
   ITrace,
   ITracesAndStats,
+  ContextualizedStats,
 } from 'apollo-reporting-protobuf';
 import pluginTestHarness from '../../../utils/pluginTestHarness';
 import { pluginsEnabledForSchemaResolvers } from '../../../utils/schemaInstrumentation';
 import nock from 'nock';
 import sumBy from 'lodash.sumby';
+import { mockRandom, resetMockRandom } from 'jest-mock-random';
 import { gunzipSync } from 'zlib';
 import type { ApolloServerPluginUsageReportingOptions } from '../options';
 import type { GraphQLRequestContextDidResolveOperation } from 'apollo-server-types';
@@ -37,8 +39,7 @@ describe('end-to-end', () => {
     expectReport?: boolean;
     query?: string;
     operationName?: string | null;
-    // null means no expectation because it's not deterministic
-    schemaShouldBeInstrumented?: boolean | null;
+    schemaShouldBeInstrumented?: boolean;
   }) {
     const typeDefs = `
       type User {
@@ -133,11 +134,9 @@ describe('end-to-end', () => {
       : null;
     nockScope.done();
 
-    if (schemaShouldBeInstrumented !== null) {
-      expect(pluginsEnabledForSchemaResolvers(schema)).toBe(
-        schemaShouldBeInstrumented,
-      );
-    }
+    expect(pluginsEnabledForSchemaResolvers(schema)).toBe(
+      schemaShouldBeInstrumented,
+    );
 
     return { report, context };
   }
@@ -234,7 +233,7 @@ describe('end-to-end', () => {
       expect(context.metrics.captureTraces).toBe(true);
     });
     it('exclude based on operation name', async () => {
-      const { report, context } = await runTest({
+      const { context } = await runTest({
         pluginOptions: {
           includeRequest: async (request: any) => {
             await new Promise<void>((res) => setTimeout(() => res(), 1));
@@ -244,7 +243,6 @@ describe('end-to-end', () => {
         expectReport: false,
         schemaShouldBeInstrumented: false,
       });
-      expect(Object.keys(report!.tracesPerQuery)).toHaveLength(0);
       expect(context.metrics.captureTraces).toBeFalsy();
     });
   });
@@ -322,40 +320,48 @@ describe('end-to-end', () => {
       ).toBe(false);
     });
 
-    it('pass a number', async () => {
-      const total = 100;
-      const fraction = 0.35;
-      let actualCaptureTraces = 0;
-      let actualContainsFieldExecutionData = 0;
+    describe('passing a number', () => {
+      afterEach(() => resetMockRandom());
 
-      for (let i = 0; i < total; ++i) {
+      const samplingFactor = 0.015;
+      it('RNG returns a small number', async () => {
+        mockRandom(samplingFactor * 0.99);
         const { report, context } = await runTest({
           pluginOptions: {
-            fieldLevelInstrumentation: fraction,
+            fieldLevelInstrumentation: samplingFactor,
+            // Want to see this in stats so we can see the scaling.
+            experimental_sendOperationAsTrace: () => false,
           },
-          schemaShouldBeInstrumented: null,
+          schemaShouldBeInstrumented: true,
         });
-        // We do get a report about this operation; we just don't have field
-        // execution data (as trace or as TypeStat).
-        if (context.metrics.captureTraces === true) {
-          actualCaptureTraces++;
-        }
+        expect(context.metrics.captureTraces).toBe(true);
         expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
-        if (
-          containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!)
-        ) {
-          actualContainsFieldExecutionData++;
-        }
-      }
-
-      // Make sure the number of reports that contain field execution data
-      // matches the number of times that the plugin set the captureTraces
-      // metrics flag.
-      expect(actualContainsFieldExecutionData).toBe(actualCaptureTraces);
-      const expected = fraction * total;
-      // If it strays from the expected amount of 35 by too far we fail.
-      expect(actualCaptureTraces).toBeGreaterThanOrEqual(0.6 * expected);
-      expect(actualCaptureTraces).toBeLessThanOrEqual(1.4 * expected);
+        expect(
+          containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!),
+        ).toBe(true);
+        const fieldStat = (
+          Object.values(report!.tracesPerQuery)[0]!
+            .statsWithContext as ContextualizedStats[]
+        )[0].perTypeStat['Query'].perFieldStat!['aBoolean'];
+        expect(fieldStat.observedExecutionCount).toBe(1);
+        expect(fieldStat.estimatedExecutionCount).toBe(
+          Math.floor(1 / samplingFactor),
+        );
+      });
+      it('RNG returns a large number', async () => {
+        mockRandom(samplingFactor * 1.01);
+        const { report, context } = await runTest({
+          pluginOptions: {
+            fieldLevelInstrumentation: samplingFactor,
+          },
+          schemaShouldBeInstrumented: false,
+        });
+        expect(context.metrics.captureTraces).toBe(false);
+        expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
+        expect(
+          containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!),
+        ).toBe(false);
+      });
     });
   });
 });
