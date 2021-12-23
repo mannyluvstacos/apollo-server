@@ -119,7 +119,7 @@ If you return false, this operation *will* still contribute to most features of 
 
 If you return false, this operation will *not* contribute to the "field executions" statistic on the Fields page or to the execution timing hints optionally displayed in Studio Explorer or in vscode-graphql. Additionally, this operation will not produce a trace that can be viewed on the Traces section of the Operations page.
 
-Returning false here for some or all operations can improve the your server's performance, as the overhead of calculating complete traces is not always negligible. This is especially the case if this server is an Apollo Gateway, as captured traces are transmitted from the subgraph to the Gateway in-band inside the actual GraphQL response.
+Returning false here for some or all operations can improve your server's performance, as the overhead of calculating complete traces is not always negligible. This is especially the case if this server is an Apollo Gateway, as captured traces are transmitted from the subgraph to the Gateway in-band inside the actual GraphQL response.
 
 Note that returning true here does *not* mean that the captured trace must be *transmitted* to Apollo Studio's servers in the form of a trace; it may still be aggregated locally to statistics. But a captured trace still will contribute to the "field executions" statistic and timing hints even if it is aggregated locally.
 
