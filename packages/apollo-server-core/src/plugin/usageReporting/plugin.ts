@@ -78,7 +78,10 @@ export function ApolloServerPluginUsageReporting<TContext>(
   const fieldLevelInstrumentationOption = options.fieldLevelInstrumentation;
   const fieldLevelInstrumentation =
     typeof fieldLevelInstrumentationOption === 'number'
-      ? async () => Math.random() < fieldLevelInstrumentationOption
+      ? async () =>
+          Math.random() < fieldLevelInstrumentationOption
+            ? fieldLevelInstrumentationOption
+            : 0
       : fieldLevelInstrumentationOption
       ? fieldLevelInstrumentationOption
       : async () => true;
@@ -395,6 +398,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
         metrics.startHrTime = treeBuilder.startHrTime;
         let graphqlValidationFailure = false;
         let graphqlUnknownOperationName = false;
+        let includeOperationInUsageReporting: boolean | null = null;
 
         if (http) {
           treeBuilder.trace.http = new Trace.HTTP({
@@ -422,8 +426,8 @@ export function ApolloServerPluginUsageReporting<TContext>(
           }
         }
 
-        // After this function completes,
-        // metrics.includeOperationInUsageReporting is defined.
+        // After this function completes, includeOperationInUsageReporting is
+        // defined.
         async function maybeCallIncludeRequestHook(
           requestContext:
             | GraphQLRequestContextDidResolveOperation<TContext>
@@ -431,25 +435,24 @@ export function ApolloServerPluginUsageReporting<TContext>(
         ): Promise<void> {
           // If this is the second call in `willSendResponse` after
           // `didResolveOperation`, we're done.
-          if (metrics.includeOperationInUsageReporting !== undefined) return;
+          if (includeOperationInUsageReporting !== null) return;
 
           if (typeof options.includeRequest !== 'function') {
             // Default case we always report
-            metrics.includeOperationInUsageReporting = metrics.captureTraces =
-              true;
+            includeOperationInUsageReporting = true;
             return;
           }
-          metrics.includeOperationInUsageReporting = metrics.captureTraces =
-            await options.includeRequest(requestContext);
+          includeOperationInUsageReporting = await options.includeRequest(
+            requestContext,
+          );
 
           // Help the user understand they've returned an unexpected value,
           // which might be a subtle mistake.
-          if (typeof metrics.includeOperationInUsageReporting !== 'boolean') {
+          if (typeof includeOperationInUsageReporting !== 'boolean') {
             logger.warn(
               "The 'includeRequest' async predicate function must return a boolean value.",
             );
-            metrics.includeOperationInUsageReporting = metrics.captureTraces =
-              true;
+            includeOperationInUsageReporting = true;
           }
         }
 
@@ -508,7 +511,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
             await maybeCallIncludeRequestHook(requestContext);
 
             if (
-              metrics.includeOperationInUsageReporting &&
+              includeOperationInUsageReporting &&
               // No need to capture traces if the operation is going to
               // immediately fail due to unknown operation name.
               !graphqlUnknownOperationName
@@ -527,8 +530,10 @@ export function ApolloServerPluginUsageReporting<TContext>(
               // were executed and what their performance was, at the tradeoff of
               // some overhead for tracking the trace (and transmitting it between
               // subgraph and gateway).
-              metrics.fieldLevelInstrumentation =
-                await fieldLevelInstrumentation(requestContext);
+              // FIXME need to actually handle numbers here properly
+              metrics.captureTraces = await fieldLevelInstrumentation(
+                requestContext,
+              );
             }
           },
           async executionDidStart() {
@@ -537,7 +542,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
             // will use treeBuilder as a convenient place to put top-level facts
             // about the operation which can end up aggregated as stats, and we do
             // eventually put *errors* onto the trace tree.)
-            if (!metrics.fieldLevelInstrumentation) return;
+            if (!metrics.captureTraces) return;
 
             return {
               willResolveField({ info }) {
@@ -562,7 +567,7 @@ export function ApolloServerPluginUsageReporting<TContext>(
 
             treeBuilder.stopTiming();
 
-            if (metrics.includeOperationInUsageReporting === false) return;
+            if (includeOperationInUsageReporting === false) return;
 
             treeBuilder.trace.fullQueryCacheHit = !!metrics.responseCacheHit;
             treeBuilder.trace.forbiddenOperation = !!metrics.forbiddenOperation;
@@ -662,11 +667,11 @@ export function ApolloServerPluginUsageReporting<TContext>(
                 // sendOperationAsTrace says so.
                 asTrace:
                   graphMightSupportTraces &&
-                  !!metrics.fieldLevelInstrumentation &&
+                  !!metrics.captureTraces &&
                   sendOperationAsTrace(trace, statsReportKey),
                 includeTracesContributingToStats,
                 referencedFieldsByType,
-                fieldLevelInstrumentation: !!metrics.fieldLevelInstrumentation,
+                fieldLevelInstrumentation: !!metrics.captureTraces,
               });
 
               // If the buffer gets big (according to our estimate), send.

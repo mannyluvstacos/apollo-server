@@ -116,11 +116,10 @@ export interface GraphQLResponse {
 }
 
 export interface GraphQLRequestMetrics {
-  includeOperationInUsageReporting?: boolean;
-  fieldLevelInstrumentation?: boolean;
-  /**
-   * @deprecated: equivalent to includeOperationInUsageReporting but with a less
-   * accurate name. */
+  // It would be more accurate to call this fieldLevelInstrumentation (it is
+  // true if the hook of that name returns truthy) but for backwards
+  // compatibility we keep this name (this field is read by `@apollo/gateway` to
+  // decide whether or not to send the apollo-federation-include-trace header).
   captureTraces?: boolean;
   persistedQueryHit?: boolean;
   persistedQueryRegister?: boolean;

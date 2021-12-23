@@ -231,11 +231,10 @@ describe('end-to-end', () => {
         schemaShouldBeInstrumented: true,
       });
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
-      expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-      expect(context.metrics.fieldLevelInstrumentation).toBe(true);
+      expect(context.metrics.captureTraces).toBe(true);
     });
     it('exclude based on operation name', async () => {
-      const { context } = await runTest({
+      const { report, context } = await runTest({
         pluginOptions: {
           includeRequest: async (request: any) => {
             await new Promise<void>((res) => setTimeout(() => res(), 1));
@@ -245,8 +244,8 @@ describe('end-to-end', () => {
         expectReport: false,
         schemaShouldBeInstrumented: false,
       });
-      expect(context.metrics.includeOperationInUsageReporting).toBe(false);
-      expect(context.metrics.fieldLevelInstrumentation).toBeFalsy();
+      expect(Object.keys(report!.tracesPerQuery)).toHaveLength(0);
+      expect(context.metrics.captureTraces).toBeFalsy();
     });
   });
 
@@ -295,8 +294,7 @@ describe('end-to-end', () => {
           },
         },
       });
-      expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-      expect(context.metrics.fieldLevelInstrumentation).toBe(true);
+      expect(context.metrics.captureTraces).toBe(true);
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
       expect(
         containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!),
@@ -317,8 +315,7 @@ describe('end-to-end', () => {
       });
       // We do get a report about this operation; we just don't have field
       // execution data (as trace or as TypeStat).
-      expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-      expect(context.metrics.fieldLevelInstrumentation).toBe(false);
+      expect(context.metrics.captureTraces).toBe(false);
       expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
       expect(
         containsFieldExecutionData(Object.values(report!.tracesPerQuery)[0]!),
@@ -340,8 +337,7 @@ describe('end-to-end', () => {
         });
         // We do get a report about this operation; we just don't have field
         // execution data (as trace or as TypeStat).
-        expect(context.metrics.includeOperationInUsageReporting).toBe(true);
-        if (context.metrics.fieldLevelInstrumentation === true) {
+        if (context.metrics.captureTraces === true) {
           actualFieldLevelInstrumentation++;
         }
         expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
