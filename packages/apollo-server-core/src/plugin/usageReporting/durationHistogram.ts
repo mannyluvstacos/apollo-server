@@ -3,6 +3,8 @@ export interface DurationHistogramOptions {
   buckets?: number[];
 }
 export class DurationHistogram {
+  // Note that it's legal for the values in "buckets" to be non-integers; they
+  // will be floored when converted to the protobuf binary format.
   private readonly buckets: number[];
   static readonly BUCKET_COUNT = 384;
   static readonly EXPONENT_LOG = Math.log(1.1);
@@ -39,8 +41,8 @@ export class DurationHistogram {
       : unboundedBucket;
   }
 
-  incrementDuration(durationNs: number): DurationHistogram {
-    this.incrementBucket(DurationHistogram.durationToBucket(durationNs));
+  incrementDuration(durationNs: number, value = 1): DurationHistogram {
+    this.incrementBucket(DurationHistogram.durationToBucket(durationNs), value);
     return this;
   }
 

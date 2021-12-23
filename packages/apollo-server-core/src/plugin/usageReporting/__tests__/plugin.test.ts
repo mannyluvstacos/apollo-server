@@ -325,7 +325,7 @@ describe('end-to-end', () => {
     it('pass a number', async () => {
       const total = 100;
       const fraction = 0.35;
-      let actualFieldLevelInstrumentation = 0;
+      let actualCaptureTraces = 0;
       let actualContainsFieldExecutionData = 0;
 
       for (let i = 0; i < total; ++i) {
@@ -338,7 +338,7 @@ describe('end-to-end', () => {
         // We do get a report about this operation; we just don't have field
         // execution data (as trace or as TypeStat).
         if (context.metrics.captureTraces === true) {
-          actualFieldLevelInstrumentation++;
+          actualCaptureTraces++;
         }
         expect(Object.keys(report!.tracesPerQuery)).toHaveLength(1);
         if (
@@ -349,19 +349,13 @@ describe('end-to-end', () => {
       }
 
       // Make sure the number of reports that contain field execution data
-      // matches the number of times that the plugin set the
-      // fieldLevelInstrumentation metrics flag.
-      expect(actualContainsFieldExecutionData).toBe(
-        actualFieldLevelInstrumentation,
-      );
+      // matches the number of times that the plugin set the captureTraces
+      // metrics flag.
+      expect(actualContainsFieldExecutionData).toBe(actualCaptureTraces);
       const expected = fraction * total;
       // If it strays from the expected amount of 35 by too far we fail.
-      expect(actualFieldLevelInstrumentation).toBeGreaterThanOrEqual(
-        0.6 * expected,
-      );
-      expect(actualFieldLevelInstrumentation).toBeLessThanOrEqual(
-        1.4 * expected,
-      );
+      expect(actualCaptureTraces).toBeGreaterThanOrEqual(0.6 * expected);
+      expect(actualCaptureTraces).toBeLessThanOrEqual(1.4 * expected);
     });
   });
 });

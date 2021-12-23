@@ -399,6 +399,14 @@ export function ApolloServerPluginUsageReporting<TContext>(
         let graphqlValidationFailure = false;
         let graphqlUnknownOperationName = false;
         let includeOperationInUsageReporting: boolean | null = null;
+        // - null: we haven't decided yet whether or not we are doing
+        //         field-level instrumentation (or perhaps we never will because
+        //         it is an invalid operation)
+        // - 0: we are not doing field-level instrumentation
+        // - >0: we are doing field-level instrumentation; for the purposes of
+        //       the "estimated" field execution count, consider this to be
+        //       `fieldExecutionScaleFactor` operations (perhaps 1)
+        let fieldExecutionScaleFactor: number | null = null;
 
         if (http) {
           treeBuilder.trace.http = new Trace.HTTP({
@@ -530,10 +538,20 @@ export function ApolloServerPluginUsageReporting<TContext>(
               // were executed and what their performance was, at the tradeoff of
               // some overhead for tracking the trace (and transmitting it between
               // subgraph and gateway).
-              // FIXME need to actually handle numbers here properly
-              metrics.captureTraces = await fieldLevelInstrumentation(
-                requestContext,
-              );
+              const fieldLevelInstrumentationResult =
+                await fieldLevelInstrumentation(requestContext);
+              if (
+                typeof fieldLevelInstrumentationResult === 'number' &&
+                fieldLevelInstrumentationResult > 0
+              ) {
+                fieldExecutionScaleFactor = 1 / fieldLevelInstrumentationResult;
+              } else if (fieldExecutionScaleFactor) {
+                fieldExecutionScaleFactor = 1;
+              } else {
+                fieldExecutionScaleFactor = 0;
+              }
+
+              metrics.captureTraces = !!fieldExecutionScaleFactor;
             }
           },
           async executionDidStart() {
@@ -671,7 +689,10 @@ export function ApolloServerPluginUsageReporting<TContext>(
                   sendOperationAsTrace(trace, statsReportKey),
                 includeTracesContributingToStats,
                 referencedFieldsByType,
-                fieldLevelInstrumentation: !!metrics.captureTraces,
+                // If this is an invalid operatoin (so fieldExecutionScaleFactor
+                // is still null) there won't be any field executions, so we can
+                // just send 0.
+                fieldExecutionScaleFactor: fieldExecutionScaleFactor ?? 0,
               });
 
               // If the buffer gets big (according to our estimate), send.

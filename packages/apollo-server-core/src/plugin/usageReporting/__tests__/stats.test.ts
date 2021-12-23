@@ -24,7 +24,7 @@ describe('Check query latency stats when', () => {
     contextualizedStats.addTrace({
       trace: baseTrace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.latencyCount).toStrictEqual(
@@ -43,7 +43,7 @@ describe('Check query latency stats when', () => {
         fullQueryCacheHit: true,
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.cacheHits).toBe(1);
@@ -64,7 +64,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(
@@ -84,7 +84,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(
@@ -100,7 +100,7 @@ describe('Check query latency stats when', () => {
         persistedQueryHit: true,
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.persistedQueryHits).toBe(1);
@@ -114,7 +114,7 @@ describe('Check query latency stats when', () => {
         persistedQueryRegister: true,
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.persistedQueryMisses).toBe(1);
@@ -128,7 +128,7 @@ describe('Check query latency stats when', () => {
         forbiddenOperation: true,
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.forbiddenOperationCount).toBe(
@@ -144,7 +144,7 @@ describe('Check query latency stats when', () => {
         registeredOperation: true,
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.registeredOperationCount).toBe(
@@ -174,7 +174,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(
@@ -209,7 +209,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace: new Trace({
@@ -238,7 +238,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     for (const _ in [1, 2]) {
       contextualizedStats.addTrace({
@@ -268,7 +268,7 @@ describe('Check query latency stats when', () => {
           },
         }),
         sizeEstimator: new SizeEstimator(),
-        fieldLevelInstrumentation: true,
+        fieldExecutionScaleFactor: 1,
       });
     }
 
@@ -313,12 +313,12 @@ describe('Check query latency stats when', () => {
     contextualizedStats.addTrace({
       trace: baseTrace,
       sizeEstimator,
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace: baseTrace,
       sizeEstimator,
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace: new Trace({
@@ -330,7 +330,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator,
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace: new Trace({
@@ -342,7 +342,7 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator,
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     for (const _ in [1, 2]) {
       contextualizedStats.addTrace({
@@ -351,7 +351,7 @@ describe('Check query latency stats when', () => {
           fullQueryCacheHit: true,
         }),
         sizeEstimator,
-        fieldLevelInstrumentation: true,
+        fieldExecutionScaleFactor: 1,
       });
     }
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(6);
@@ -474,7 +474,7 @@ describe('Check type stats', () => {
     contextualizedStats.addTrace({
       trace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats).toMatchSnapshot();
   });
@@ -483,12 +483,12 @@ describe('Check type stats', () => {
     contextualizedStats.addTrace({
       trace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats).toMatchSnapshot();
   });
@@ -498,12 +498,12 @@ describe('Check type stats', () => {
     contextualizedStats.addTrace({
       trace: federatedTrace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace: federatedTrace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats).toMatchSnapshot();
   });
@@ -512,12 +512,12 @@ describe('Check type stats', () => {
     contextualizedStats.addTrace({
       trace: errorTrace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     contextualizedStats.addTrace({
       trace: errorTrace,
       sizeEstimator: new SizeEstimator(),
-      fieldLevelInstrumentation: true,
+      fieldExecutionScaleFactor: 1,
     });
     expect(contextualizedStats).toMatchSnapshot();
   });

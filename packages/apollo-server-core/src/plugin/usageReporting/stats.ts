@@ -56,14 +56,14 @@ export class OurReport implements Required<IReport> {
     asTrace,
     includeTracesContributingToStats,
     referencedFieldsByType,
-    fieldLevelInstrumentation,
+    fieldExecutionScaleFactor,
   }: {
     statsReportKey: string;
     trace: Trace;
     asTrace: boolean;
     includeTracesContributingToStats: boolean;
     referencedFieldsByType: ReferencedFieldsByType;
-    fieldLevelInstrumentation: boolean;
+    fieldExecutionScaleFactor: number;
   }) {
     const tracesAndStats = this.getTracesAndStats({
       statsReportKey,
@@ -77,7 +77,7 @@ export class OurReport implements Required<IReport> {
       tracesAndStats.statsWithContext.addTrace({
         trace,
         sizeEstimator: this.sizeEstimator,
-        fieldLevelInstrumentation,
+        fieldExecutionScaleFactor,
       });
       if (includeTracesContributingToStats) {
         // For specific use inside Apollo's infrastructure to help validate that
@@ -152,16 +152,16 @@ class StatsByContext {
   addTrace({
     trace,
     sizeEstimator,
-    fieldLevelInstrumentation,
+    fieldExecutionScaleFactor,
   }: {
     trace: Trace;
     sizeEstimator: SizeEstimator;
-    fieldLevelInstrumentation: boolean;
+    fieldExecutionScaleFactor: number;
   }) {
     this.getContextualizedStats(trace, sizeEstimator).addTrace({
       trace,
       sizeEstimator,
-      fieldLevelInstrumentation,
+      fieldExecutionScaleFactor,
     });
   }
 
@@ -205,13 +205,13 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
   addTrace({
     trace,
     sizeEstimator,
-    fieldLevelInstrumentation,
+    fieldExecutionScaleFactor,
   }: {
     trace: Trace;
     sizeEstimator: SizeEstimator;
-    fieldLevelInstrumentation: boolean;
+    fieldExecutionScaleFactor: number;
   }) {
-    if (!fieldLevelInstrumentation) {
+    if (!fieldExecutionScaleFactor) {
       this.queryLatencyStats.requestsWithoutFieldInstrumentation++;
     }
 
@@ -277,7 +277,7 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
         currPathErrorStats.errorsCount += node.error.length;
       }
 
-      if (fieldLevelInstrumentation) {
+      if (fieldExecutionScaleFactor) {
         // The actual field name behind the node; originalFieldName is set
         // if an alias was used, otherwise responseName. (This is falsey for
         // nodes that are not fields (root, array index, etc).)
@@ -312,6 +312,7 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
 
           fieldStat.errorsCount += node.error?.length ?? 0;
           fieldStat.observedExecutionCount++;
+          fieldStat.estimatedExecutionCount += fieldExecutionScaleFactor;
           // Note: this is actually counting the number of resolver calls for this
           // field that had at least one error, not the number of overall GraphQL
           // queries that had at least one error for this field. That doesn't seem
@@ -321,6 +322,9 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
             (node.error?.length ?? 0) > 0 ? 1 : 0;
           fieldStat.latencyCount.incrementDuration(
             node.endTime - node.startTime,
+            // The latency histogram is always "estimated"; we don't track
+            // "observed" and "estimated" separately.
+            fieldExecutionScaleFactor,
           );
         }
       }
@@ -406,6 +410,8 @@ class OurTypeStat implements Required<ITypeStat> {
 class OurFieldStat implements Required<IFieldStat> {
   errorsCount: number = 0;
   observedExecutionCount: number = 0;
+  // Note that this number isn't necessarily an integer while it is being
+  // aggregated; it will be truncated when written as a protobuf.
   estimatedExecutionCount: number = 0;
   requestsWithErrorsCount: number = 0;
   latencyCount: DurationHistogram = new DurationHistogram();
