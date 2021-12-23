@@ -145,7 +145,7 @@ Specify this asynchronous function to configure which requests are included in u
 
 This function is called for each received request. It takes a [`GraphQLRequestContext`](https://github.com/apollographql/apollo-server/blob/main/packages/apollo-server-types/src/index.ts#L115-L150) object and must return a `Promise<Boolean>` that indicates whether to include the request. It's called either after the operation is successfully resolved (via [the `didResolveOperation` event](https://www.apollographql.com/docs/apollo-server/integrations/plugins/#didresolveoperation)), or when sending the final error response if the operation was not successfully resolved (via [the `willSendResponse` event](https://www.apollographql.com/docs/apollo-server/integrations/plugins/#willsendresponse)).
 
-(If you don't want any usage reporting at all, don't use this option: instead, either avoid specifying an Apollo API key or explicitly [disable the plugin](#disabling-the-plugin).)
+If you don't want any usage reporting at all, don't use this option: instead, either avoid specifying an Apollo API key or explicitly [disable the plugin](#disabling-the-plugin).
 
 By default, all requests are included in usage reports.
 
