@@ -4310,6 +4310,7 @@ $root.QueryLatencyStats = (function() {
      * @property {$protobuf.ToArray.<number>|Array.<number>|null} [privateCacheTtlCount] QueryLatencyStats privateCacheTtlCount
      * @property {number|null} [registeredOperationCount] QueryLatencyStats registeredOperationCount
      * @property {number|null} [forbiddenOperationCount] QueryLatencyStats forbiddenOperationCount
+     * @property {number|null} [requestsWithoutFieldInstrumentation] QueryLatencyStats requestsWithoutFieldInstrumentation
      */
 
     /**
@@ -4428,6 +4429,14 @@ $root.QueryLatencyStats = (function() {
     QueryLatencyStats.prototype.forbiddenOperationCount = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
     /**
+     * QueryLatencyStats requestsWithoutFieldInstrumentation.
+     * @member {number} requestsWithoutFieldInstrumentation
+     * @memberof QueryLatencyStats
+     * @instance
+     */
+    QueryLatencyStats.prototype.requestsWithoutFieldInstrumentation = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
      * Creates a new QueryLatencyStats instance using the specified properties.
      * @function create
      * @memberof QueryLatencyStats
@@ -4511,6 +4520,8 @@ $root.QueryLatencyStats = (function() {
                 writer.sint64(array16[i]);
             writer.ldelim();
         }
+        if (message.requestsWithoutFieldInstrumentation != null && Object.hasOwnProperty.call(message, "requestsWithoutFieldInstrumentation"))
+            writer.uint32(/* id 17, wireType 0 =*/136).uint64(message.requestsWithoutFieldInstrumentation);
         return writer;
     };
 
@@ -4608,6 +4619,9 @@ $root.QueryLatencyStats = (function() {
                 break;
             case 12:
                 message.forbiddenOperationCount = reader.uint64();
+                break;
+            case 17:
+                message.requestsWithoutFieldInstrumentation = reader.uint64();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -4718,6 +4732,9 @@ $root.QueryLatencyStats = (function() {
         if (message.forbiddenOperationCount != null && message.hasOwnProperty("forbiddenOperationCount"))
             if (!$util.isInteger(message.forbiddenOperationCount) && !(message.forbiddenOperationCount && $util.isInteger(message.forbiddenOperationCount.low) && $util.isInteger(message.forbiddenOperationCount.high)))
                 return "forbiddenOperationCount: integer|Long expected";
+        if (message.requestsWithoutFieldInstrumentation != null && message.hasOwnProperty("requestsWithoutFieldInstrumentation"))
+            if (!$util.isInteger(message.requestsWithoutFieldInstrumentation) && !(message.requestsWithoutFieldInstrumentation && $util.isInteger(message.requestsWithoutFieldInstrumentation.low) && $util.isInteger(message.requestsWithoutFieldInstrumentation.high)))
+                return "requestsWithoutFieldInstrumentation: integer|Long expected";
         return null;
     };
 
@@ -4777,6 +4794,11 @@ $root.QueryLatencyStats = (function() {
                 object.forbiddenOperationCount = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
             } else
                 object.forbiddenOperationCount = options.longs === String ? "0" : 0;
+            if ($util.Long) {
+                var long = new $util.Long(0, 0, true);
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? "0" : 0;
         }
         if (message.requestCount != null && message.hasOwnProperty("requestCount"))
             if (typeof message.requestCount === "number")
@@ -4847,6 +4869,11 @@ $root.QueryLatencyStats = (function() {
                 else
                     object.privateCacheTtlCount[j] = options.longs === String ? $util.Long.prototype.toString.call(message.privateCacheTtlCount[j]) : options.longs === Number ? new $util.LongBits(message.privateCacheTtlCount[j].low >>> 0, message.privateCacheTtlCount[j].high >>> 0).toNumber() : message.privateCacheTtlCount[j];
         }
+        if (message.requestsWithoutFieldInstrumentation != null && message.hasOwnProperty("requestsWithoutFieldInstrumentation"))
+            if (typeof message.requestsWithoutFieldInstrumentation === "number")
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? String(message.requestsWithoutFieldInstrumentation) : message.requestsWithoutFieldInstrumentation;
+            else
+                object.requestsWithoutFieldInstrumentation = options.longs === String ? $util.Long.prototype.toString.call(message.requestsWithoutFieldInstrumentation) : options.longs === Number ? new $util.LongBits(message.requestsWithoutFieldInstrumentation.low >>> 0, message.requestsWithoutFieldInstrumentation.high >>> 0).toNumber(true) : message.requestsWithoutFieldInstrumentation;
         return object;
     };
 
@@ -5471,7 +5498,8 @@ $root.FieldStat = (function() {
      * @interface IFieldStat
      * @property {string|null} [returnType] FieldStat returnType
      * @property {number|null} [errorsCount] FieldStat errorsCount
-     * @property {number|null} [count] FieldStat count
+     * @property {number|null} [observedExecutionCount] FieldStat observedExecutionCount
+     * @property {number|null} [estimatedExecutionCount] FieldStat estimatedExecutionCount
      * @property {number|null} [requestsWithErrorsCount] FieldStat requestsWithErrorsCount
      * @property {$protobuf.ToArray.<number>|Array.<number>|null} [latencyCount] FieldStat latencyCount
      */
@@ -5509,12 +5537,20 @@ $root.FieldStat = (function() {
     FieldStat.prototype.errorsCount = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
     /**
-     * FieldStat count.
-     * @member {number} count
+     * FieldStat observedExecutionCount.
+     * @member {number} observedExecutionCount
      * @memberof FieldStat
      * @instance
      */
-    FieldStat.prototype.count = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    FieldStat.prototype.observedExecutionCount = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+    /**
+     * FieldStat estimatedExecutionCount.
+     * @member {number} estimatedExecutionCount
+     * @memberof FieldStat
+     * @instance
+     */
+    FieldStat.prototype.estimatedExecutionCount = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
     /**
      * FieldStat requestsWithErrorsCount.
@@ -5560,8 +5596,8 @@ $root.FieldStat = (function() {
             writer.uint32(/* id 3, wireType 2 =*/26).string(message.returnType);
         if (message.errorsCount != null && Object.hasOwnProperty.call(message, "errorsCount"))
             writer.uint32(/* id 4, wireType 0 =*/32).uint64(message.errorsCount);
-        if (message.count != null && Object.hasOwnProperty.call(message, "count"))
-            writer.uint32(/* id 5, wireType 0 =*/40).uint64(message.count);
+        if (message.observedExecutionCount != null && Object.hasOwnProperty.call(message, "observedExecutionCount"))
+            writer.uint32(/* id 5, wireType 0 =*/40).uint64(message.observedExecutionCount);
         if (message.requestsWithErrorsCount != null && Object.hasOwnProperty.call(message, "requestsWithErrorsCount"))
             writer.uint32(/* id 6, wireType 0 =*/48).uint64(message.requestsWithErrorsCount);
         var array9;
@@ -5575,6 +5611,8 @@ $root.FieldStat = (function() {
                 writer.sint64(array9[i]);
             writer.ldelim();
         }
+        if (message.estimatedExecutionCount != null && Object.hasOwnProperty.call(message, "estimatedExecutionCount"))
+            writer.uint32(/* id 10, wireType 0 =*/80).uint64(message.estimatedExecutionCount);
         return writer;
     };
 
@@ -5616,7 +5654,10 @@ $root.FieldStat = (function() {
                 message.errorsCount = reader.uint64();
                 break;
             case 5:
-                message.count = reader.uint64();
+                message.observedExecutionCount = reader.uint64();
+                break;
+            case 10:
+                message.estimatedExecutionCount = reader.uint64();
                 break;
             case 6:
                 message.requestsWithErrorsCount = reader.uint64();
@@ -5672,9 +5713,12 @@ $root.FieldStat = (function() {
         if (message.errorsCount != null && message.hasOwnProperty("errorsCount"))
             if (!$util.isInteger(message.errorsCount) && !(message.errorsCount && $util.isInteger(message.errorsCount.low) && $util.isInteger(message.errorsCount.high)))
                 return "errorsCount: integer|Long expected";
-        if (message.count != null && message.hasOwnProperty("count"))
-            if (!$util.isInteger(message.count) && !(message.count && $util.isInteger(message.count.low) && $util.isInteger(message.count.high)))
-                return "count: integer|Long expected";
+        if (message.observedExecutionCount != null && message.hasOwnProperty("observedExecutionCount"))
+            if (!$util.isInteger(message.observedExecutionCount) && !(message.observedExecutionCount && $util.isInteger(message.observedExecutionCount.low) && $util.isInteger(message.observedExecutionCount.high)))
+                return "observedExecutionCount: integer|Long expected";
+        if (message.estimatedExecutionCount != null && message.hasOwnProperty("estimatedExecutionCount"))
+            if (!$util.isInteger(message.estimatedExecutionCount) && !(message.estimatedExecutionCount && $util.isInteger(message.estimatedExecutionCount.low) && $util.isInteger(message.estimatedExecutionCount.high)))
+                return "estimatedExecutionCount: integer|Long expected";
         if (message.requestsWithErrorsCount != null && message.hasOwnProperty("requestsWithErrorsCount"))
             if (!$util.isInteger(message.requestsWithErrorsCount) && !(message.requestsWithErrorsCount && $util.isInteger(message.requestsWithErrorsCount.low) && $util.isInteger(message.requestsWithErrorsCount.high)))
                 return "requestsWithErrorsCount: integer|Long expected";
@@ -5717,14 +5761,19 @@ $root.FieldStat = (function() {
                 object.errorsCount = options.longs === String ? "0" : 0;
             if ($util.Long) {
                 var long = new $util.Long(0, 0, true);
-                object.count = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                object.observedExecutionCount = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
             } else
-                object.count = options.longs === String ? "0" : 0;
+                object.observedExecutionCount = options.longs === String ? "0" : 0;
             if ($util.Long) {
                 var long = new $util.Long(0, 0, true);
                 object.requestsWithErrorsCount = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
             } else
                 object.requestsWithErrorsCount = options.longs === String ? "0" : 0;
+            if ($util.Long) {
+                var long = new $util.Long(0, 0, true);
+                object.estimatedExecutionCount = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+            } else
+                object.estimatedExecutionCount = options.longs === String ? "0" : 0;
         }
         if (message.returnType != null && message.hasOwnProperty("returnType"))
             object.returnType = message.returnType;
@@ -5733,11 +5782,11 @@ $root.FieldStat = (function() {
                 object.errorsCount = options.longs === String ? String(message.errorsCount) : message.errorsCount;
             else
                 object.errorsCount = options.longs === String ? $util.Long.prototype.toString.call(message.errorsCount) : options.longs === Number ? new $util.LongBits(message.errorsCount.low >>> 0, message.errorsCount.high >>> 0).toNumber(true) : message.errorsCount;
-        if (message.count != null && message.hasOwnProperty("count"))
-            if (typeof message.count === "number")
-                object.count = options.longs === String ? String(message.count) : message.count;
+        if (message.observedExecutionCount != null && message.hasOwnProperty("observedExecutionCount"))
+            if (typeof message.observedExecutionCount === "number")
+                object.observedExecutionCount = options.longs === String ? String(message.observedExecutionCount) : message.observedExecutionCount;
             else
-                object.count = options.longs === String ? $util.Long.prototype.toString.call(message.count) : options.longs === Number ? new $util.LongBits(message.count.low >>> 0, message.count.high >>> 0).toNumber(true) : message.count;
+                object.observedExecutionCount = options.longs === String ? $util.Long.prototype.toString.call(message.observedExecutionCount) : options.longs === Number ? new $util.LongBits(message.observedExecutionCount.low >>> 0, message.observedExecutionCount.high >>> 0).toNumber(true) : message.observedExecutionCount;
         if (message.requestsWithErrorsCount != null && message.hasOwnProperty("requestsWithErrorsCount"))
             if (typeof message.requestsWithErrorsCount === "number")
                 object.requestsWithErrorsCount = options.longs === String ? String(message.requestsWithErrorsCount) : message.requestsWithErrorsCount;
@@ -5751,6 +5800,11 @@ $root.FieldStat = (function() {
                 else
                     object.latencyCount[j] = options.longs === String ? $util.Long.prototype.toString.call(message.latencyCount[j]) : options.longs === Number ? new $util.LongBits(message.latencyCount[j].low >>> 0, message.latencyCount[j].high >>> 0).toNumber() : message.latencyCount[j];
         }
+        if (message.estimatedExecutionCount != null && message.hasOwnProperty("estimatedExecutionCount"))
+            if (typeof message.estimatedExecutionCount === "number")
+                object.estimatedExecutionCount = options.longs === String ? String(message.estimatedExecutionCount) : message.estimatedExecutionCount;
+            else
+                object.estimatedExecutionCount = options.longs === String ? $util.Long.prototype.toString.call(message.estimatedExecutionCount) : options.longs === Number ? new $util.LongBits(message.estimatedExecutionCount.low >>> 0, message.estimatedExecutionCount.high >>> 0).toNumber(true) : message.estimatedExecutionCount;
         return object;
     };
 
@@ -6405,7 +6459,6 @@ $root.ContextualizedStats = (function() {
      * @property {IStatsContext|null} [context] ContextualizedStats context
      * @property {IQueryLatencyStats|null} [queryLatencyStats] ContextualizedStats queryLatencyStats
      * @property {Object.<string,ITypeStat>|null} [perTypeStat] ContextualizedStats perTypeStat
-     * @property {number|null} [requestsWithoutFieldInstrumentation] ContextualizedStats requestsWithoutFieldInstrumentation
      */
 
     /**
@@ -6449,14 +6502,6 @@ $root.ContextualizedStats = (function() {
     ContextualizedStats.prototype.perTypeStat = $util.emptyObject;
 
     /**
-     * ContextualizedStats requestsWithoutFieldInstrumentation.
-     * @member {number} requestsWithoutFieldInstrumentation
-     * @memberof ContextualizedStats
-     * @instance
-     */
-    ContextualizedStats.prototype.requestsWithoutFieldInstrumentation = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
-
-    /**
      * Creates a new ContextualizedStats instance using the specified properties.
      * @function create
      * @memberof ContextualizedStats
@@ -6489,8 +6534,6 @@ $root.ContextualizedStats = (function() {
                 writer.uint32(/* id 3, wireType 2 =*/26).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
                 $root.TypeStat.encode(message.perTypeStat[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
             }
-        if (message.requestsWithoutFieldInstrumentation != null && Object.hasOwnProperty.call(message, "requestsWithoutFieldInstrumentation"))
-            writer.uint32(/* id 6, wireType 0 =*/48).uint64(message.requestsWithoutFieldInstrumentation);
         return writer;
     };
 
@@ -6538,9 +6581,6 @@ $root.ContextualizedStats = (function() {
                 key = reader.string();
                 reader.pos++;
                 message.perTypeStat[key] = $root.TypeStat.decode(reader, reader.uint32());
-                break;
-            case 6:
-                message.requestsWithoutFieldInstrumentation = reader.uint64();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -6597,9 +6637,6 @@ $root.ContextualizedStats = (function() {
                     return "perTypeStat." + error;
             }
         }
-        if (message.requestsWithoutFieldInstrumentation != null && message.hasOwnProperty("requestsWithoutFieldInstrumentation"))
-            if (!$util.isInteger(message.requestsWithoutFieldInstrumentation) && !(message.requestsWithoutFieldInstrumentation && $util.isInteger(message.requestsWithoutFieldInstrumentation.low) && $util.isInteger(message.requestsWithoutFieldInstrumentation.high)))
-                return "requestsWithoutFieldInstrumentation: integer|Long expected";
         return null;
     };
 
@@ -6621,11 +6658,6 @@ $root.ContextualizedStats = (function() {
         if (options.defaults) {
             object.context = null;
             object.queryLatencyStats = null;
-            if ($util.Long) {
-                var long = new $util.Long(0, 0, true);
-                object.requestsWithoutFieldInstrumentation = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
-            } else
-                object.requestsWithoutFieldInstrumentation = options.longs === String ? "0" : 0;
         }
         if (message.context != null && message.hasOwnProperty("context"))
             object.context = $root.StatsContext.toObject(message.context, options);
@@ -6637,11 +6669,6 @@ $root.ContextualizedStats = (function() {
             for (var j = 0; j < keys2.length; ++j)
                 object.perTypeStat[keys2[j]] = $root.TypeStat.toObject(message.perTypeStat[keys2[j]], options);
         }
-        if (message.requestsWithoutFieldInstrumentation != null && message.hasOwnProperty("requestsWithoutFieldInstrumentation"))
-            if (typeof message.requestsWithoutFieldInstrumentation === "number")
-                object.requestsWithoutFieldInstrumentation = options.longs === String ? String(message.requestsWithoutFieldInstrumentation) : message.requestsWithoutFieldInstrumentation;
-            else
-                object.requestsWithoutFieldInstrumentation = options.longs === String ? $util.Long.prototype.toString.call(message.requestsWithoutFieldInstrumentation) : options.longs === Number ? new $util.LongBits(message.requestsWithoutFieldInstrumentation.low >>> 0, message.requestsWithoutFieldInstrumentation.high >>> 0).toNumber(true) : message.requestsWithoutFieldInstrumentation;
         return object;
     };
 

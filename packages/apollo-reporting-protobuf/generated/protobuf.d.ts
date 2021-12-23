@@ -1749,6 +1749,9 @@ export interface IQueryLatencyStats {
 
     /** QueryLatencyStats forbiddenOperationCount */
     forbiddenOperationCount?: (number|null);
+
+    /** QueryLatencyStats requestsWithoutFieldInstrumentation */
+    requestsWithoutFieldInstrumentation?: (number|null);
 }
 
 /** Represents a QueryLatencyStats. */
@@ -1795,6 +1798,9 @@ export class QueryLatencyStats implements IQueryLatencyStats {
 
     /** QueryLatencyStats forbiddenOperationCount. */
     public forbiddenOperationCount: number;
+
+    /** QueryLatencyStats requestsWithoutFieldInstrumentation. */
+    public requestsWithoutFieldInstrumentation: number;
 
     /**
      * Creates a new QueryLatencyStats instance using the specified properties.
@@ -2136,8 +2142,11 @@ export interface IFieldStat {
     /** FieldStat errorsCount */
     errorsCount?: (number|null);
 
-    /** FieldStat count */
-    count?: (number|null);
+    /** FieldStat observedExecutionCount */
+    observedExecutionCount?: (number|null);
+
+    /** FieldStat estimatedExecutionCount */
+    estimatedExecutionCount?: (number|null);
 
     /** FieldStat requestsWithErrorsCount */
     requestsWithErrorsCount?: (number|null);
@@ -2161,8 +2170,11 @@ export class FieldStat implements IFieldStat {
     /** FieldStat errorsCount. */
     public errorsCount: number;
 
-    /** FieldStat count. */
-    public count: number;
+    /** FieldStat observedExecutionCount. */
+    public observedExecutionCount: number;
+
+    /** FieldStat estimatedExecutionCount. */
+    public estimatedExecutionCount: number;
 
     /** FieldStat requestsWithErrorsCount. */
     public requestsWithErrorsCount: number;
@@ -2512,9 +2524,6 @@ export interface IContextualizedStats {
 
     /** ContextualizedStats perTypeStat */
     perTypeStat?: ({ [k: string]: ITypeStat }|null);
-
-    /** ContextualizedStats requestsWithoutFieldInstrumentation */
-    requestsWithoutFieldInstrumentation?: (number|null);
 }
 
 /** Represents a ContextualizedStats. */
@@ -2534,9 +2543,6 @@ export class ContextualizedStats implements IContextualizedStats {
 
     /** ContextualizedStats perTypeStat. */
     public perTypeStat: { [k: string]: ITypeStat };
-
-    /** ContextualizedStats requestsWithoutFieldInstrumentation. */
-    public requestsWithoutFieldInstrumentation: number;
 
     /**
      * Creates a new ContextualizedStats instance using the specified properties.

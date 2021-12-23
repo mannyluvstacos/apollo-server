@@ -21,7 +21,11 @@ const baseTrace = new Trace({
 describe('Check query latency stats when', () => {
   it('adding a single trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(baseTrace, new SizeEstimator());
+    contextualizedStats.addTrace({
+      trace: baseTrace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.latencyCount).toStrictEqual(
       new DurationHistogram().incrementDuration(duration),
@@ -33,13 +37,14 @@ describe('Check query latency stats when', () => {
   });
   it('adding a fully cached trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         fullQueryCacheHit: true,
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.cacheHits).toBe(1);
     expect(
@@ -49,8 +54,8 @@ describe('Check query latency stats when', () => {
   });
   it('adding a public cached trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         fullQueryCacheHit: false,
         cachePolicy: {
@@ -58,8 +63,9 @@ describe('Check query latency stats when', () => {
           maxAgeNs: 1000,
         },
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(
       contextualizedStats.queryLatencyStats.privateCacheTtlCount,
@@ -68,8 +74,8 @@ describe('Check query latency stats when', () => {
   });
   it('adding a private cached trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         fullQueryCacheHit: false,
         cachePolicy: {
@@ -77,8 +83,9 @@ describe('Check query latency stats when', () => {
           maxAgeNs: 1000,
         },
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(
       contextualizedStats.queryLatencyStats.publicCacheTtlCount,
@@ -87,39 +94,42 @@ describe('Check query latency stats when', () => {
   });
   it('adding a persisted hit trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         persistedQueryHit: true,
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.persistedQueryHits).toBe(1);
     expect(contextualizedStats).toMatchSnapshot();
   });
   it('adding a persisted miss trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         persistedQueryRegister: true,
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.persistedQueryMisses).toBe(1);
     expect(contextualizedStats).toMatchSnapshot();
   });
   it('adding a forbidden trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         forbiddenOperation: true,
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.forbiddenOperationCount).toBe(
       1,
@@ -128,13 +138,14 @@ describe('Check query latency stats when', () => {
   });
   it('adding a registered trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         registeredOperation: true,
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(contextualizedStats.queryLatencyStats.registeredOperationCount).toBe(
       1,
@@ -143,8 +154,8 @@ describe('Check query latency stats when', () => {
   });
   it('adding an errored trace ', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         registeredOperation: true,
         root: {
@@ -162,8 +173,9 @@ describe('Check query latency stats when', () => {
           ],
         },
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(1);
     expect(
       contextualizedStats.queryLatencyStats.rootErrorStats.children['user']
@@ -177,8 +189,8 @@ describe('Check query latency stats when', () => {
   });
   it('merging errored traces', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         registeredOperation: true,
         root: {
@@ -196,10 +208,11 @@ describe('Check query latency stats when', () => {
           ],
         },
       }),
-      new SizeEstimator(),
-    );
-    contextualizedStats.addTrace(
-      new Trace({
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         registeredOperation: true,
         root: {
@@ -224,11 +237,12 @@ describe('Check query latency stats when', () => {
           ],
         },
       }),
-      new SizeEstimator(),
-    );
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     for (const _ in [1, 2]) {
-      contextualizedStats.addTrace(
-        new Trace({
+      contextualizedStats.addTrace({
+        trace: new Trace({
           ...baseTrace,
           registeredOperation: true,
           root: {
@@ -253,8 +267,9 @@ describe('Check query latency stats when', () => {
             ],
           },
         }),
-        new SizeEstimator(),
-      );
+        sizeEstimator: new SizeEstimator(),
+        fieldLevelInstrumentation: true,
+      });
     }
 
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(4);
@@ -295,10 +310,18 @@ describe('Check query latency stats when', () => {
   it('merging non-errored traces', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
     const sizeEstimator = new SizeEstimator();
-    contextualizedStats.addTrace(baseTrace, sizeEstimator);
-    contextualizedStats.addTrace(baseTrace, sizeEstimator);
-    contextualizedStats.addTrace(
-      new Trace({
+    contextualizedStats.addTrace({
+      trace: baseTrace,
+      sizeEstimator,
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace: baseTrace,
+      sizeEstimator,
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         fullQueryCacheHit: false,
         cachePolicy: {
@@ -307,9 +330,10 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator,
-    );
-    contextualizedStats.addTrace(
-      new Trace({
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace: new Trace({
         ...baseTrace,
         fullQueryCacheHit: false,
         cachePolicy: {
@@ -318,15 +342,17 @@ describe('Check query latency stats when', () => {
         },
       }),
       sizeEstimator,
-    );
+      fieldLevelInstrumentation: true,
+    });
     for (const _ in [1, 2]) {
-      contextualizedStats.addTrace(
-        new Trace({
+      contextualizedStats.addTrace({
+        trace: new Trace({
           ...baseTrace,
           fullQueryCacheHit: true,
         }),
         sizeEstimator,
-      );
+        fieldLevelInstrumentation: true,
+      });
     }
     expect(contextualizedStats.queryLatencyStats.requestCount).toBe(6);
     expect(contextualizedStats.queryLatencyStats.latencyCount).toStrictEqual(
@@ -445,26 +471,54 @@ describe('Check type stats', () => {
 
   it('add single non-federated trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(trace, new SizeEstimator());
+    contextualizedStats.addTrace({
+      trace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats).toMatchSnapshot();
   });
   it('add multiple non-federated trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(trace, new SizeEstimator());
-    contextualizedStats.addTrace(trace, new SizeEstimator());
+    contextualizedStats.addTrace({
+      trace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats).toMatchSnapshot();
   });
 
   it('add multiple federated trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(federatedTrace, new SizeEstimator());
-    contextualizedStats.addTrace(federatedTrace, new SizeEstimator());
+    contextualizedStats.addTrace({
+      trace: federatedTrace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace: federatedTrace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats).toMatchSnapshot();
   });
   it('add multiple errored traces trace', () => {
     const contextualizedStats = new OurContextualizedStats(statsContext);
-    contextualizedStats.addTrace(errorTrace, new SizeEstimator());
-    contextualizedStats.addTrace(errorTrace, new SizeEstimator());
+    contextualizedStats.addTrace({
+      trace: errorTrace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
+    contextualizedStats.addTrace({
+      trace: errorTrace,
+      sizeEstimator: new SizeEstimator(),
+      fieldLevelInstrumentation: true,
+    });
     expect(contextualizedStats).toMatchSnapshot();
   });
 });

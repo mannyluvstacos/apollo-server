@@ -535,7 +535,8 @@ export function ApolloServerPluginUsageReporting<TContext>(
             // If we're not capturing traces, don't return a willResolveField so
             // that we don't build up a detailed trace inside treeBuilder. (We still
             // will use treeBuilder as a convenient place to put top-level facts
-            // about the operation which can end up aggregated as stats.)
+            // about the operation which can end up aggregated as stats, and we do
+            // eventually put *errors* onto the trace tree.)
             if (!metrics.fieldLevelInstrumentation) return;
 
             return {

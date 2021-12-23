@@ -195,7 +195,6 @@ class StatsByContext {
 export class OurContextualizedStats implements Required<IContextualizedStats> {
   queryLatencyStats = new OurQueryLatencyStats();
   perTypeStat: { [k: string]: OurTypeStat } = Object.create(null);
-  requestsWithoutFieldInstrumentation = 0;
 
   constructor(readonly context: IStatsContext) {}
 
@@ -213,7 +212,7 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
     fieldLevelInstrumentation: boolean;
   }) {
     if (!fieldLevelInstrumentation) {
-      this.requestsWithoutFieldInstrumentation++;
+      this.queryLatencyStats.requestsWithoutFieldInstrumentation++;
     }
 
     this.queryLatencyStats.requestCount++;
@@ -312,7 +311,7 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
           );
 
           fieldStat.errorsCount += node.error?.length ?? 0;
-          fieldStat.count++;
+          fieldStat.observedExecutionCount++;
           // Note: this is actually counting the number of resolver calls for this
           // field that had at least one error, not the number of overall GraphQL
           // queries that had at least one error for this field. That doesn't seem
@@ -350,6 +349,7 @@ export class OurContextualizedStats implements Required<IContextualizedStats> {
 class OurQueryLatencyStats implements Required<IQueryLatencyStats> {
   latencyCount: DurationHistogram = new DurationHistogram();
   requestCount: number = 0;
+  requestsWithoutFieldInstrumentation: number = 0;
   cacheHits: number = 0;
   persistedQueryHits: number = 0;
   persistedQueryMisses: number = 0;
@@ -405,7 +405,8 @@ class OurTypeStat implements Required<ITypeStat> {
 
 class OurFieldStat implements Required<IFieldStat> {
   errorsCount: number = 0;
-  count: number = 0;
+  observedExecutionCount: number = 0;
+  estimatedExecutionCount: number = 0;
   requestsWithErrorsCount: number = 0;
   latencyCount: DurationHistogram = new DurationHistogram();
 
